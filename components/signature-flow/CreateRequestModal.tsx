@@ -22,16 +22,24 @@ interface CreateRequestModalProps {
 
 export function CreateRequestModal({ template, onClose, onSuccess }: CreateRequestModalProps) {
   const { createRequest, addSigner, sendForSignature, calculateCombinations } = useSignatureStore();
-  const { schemas, activeSchemaId, getRuleByFaculty, getGroupById, signers, createSigner } =
-    useSchemaStore();
-  const activeSchema = schemas.find((s) => s.id === activeSchemaId) || schemas[0]; // Fallback a default
+  const { schemas, signers, createSigner } = useSchemaStore();
+
+  // Determinar el schema correcto basado en la cuenta del template
+  const activeSchema =
+    schemas.find((s) => s.accountId === template.accountId && s.isActive) ||
+    schemas.find((s) => s.accountId === template.accountId);
+
+  const getRuleLocal = (fac: Faculty) => activeSchema?.rules.find((r) => r.faculty === fac);
+  const getGroupLocal = (groupId: string) => activeSchema?.groups.find((g) => g.id === groupId);
+
+  const isSingleSigner = template.signers.length <= 1;
 
   const [faculty, setFaculty] = useState<Faculty>(Faculty.APPROVE_WIRE);
   const [signerData, setSignerData] = useState<
     Record<string, { email: string; name: string; groupId: string }>
   >({});
   const [signingOrder, setSigningOrder] = useState<'sequential' | 'parallel'>(
-    template.settings?.signingOrder || 'sequential'
+    isSingleSigner ? 'parallel' : template.settings?.signingOrder || 'sequential'
   );
   const [rolesOrder, setRolesOrder] = useState<Record<string, number>>(() =>
     template.signers.reduce((acc, s) => ({ ...acc, [s.id]: s.order }), {} as Record<string, number>)
@@ -68,7 +76,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     e.preventDefault();
 
     // Obtener reglas dinámicas (Parte 0)
-    const selectedRule = getRuleByFaculty(faculty) || getRuleByFaculty(Faculty.CREATE_WIRE);
+    const selectedRule = getRuleLocal(faculty) || getRuleLocal(Faculty.CREATE_WIRE);
 
     if (!selectedRule || !selectedRule.combinations) {
       alert('No hay reglas configuradas para esta facultad.');
@@ -113,7 +121,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
         .map((c, i) => {
           const reqs = c.requirements
             .map((r) => {
-              const group = getGroupById(r.groupId);
+              const group = getGroupLocal(r.groupId);
               const groupName = group ? group.name : r.groupId;
               return `${r.count} ${groupName}`;
             })
@@ -134,7 +142,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     // Crear la Request (Nace como DRAFT)
     const requestId = createRequest(
       template.id,
-      'account-1',
+      template.accountId,
       faculty,
       expirationDays,
       signingOrder
@@ -149,7 +157,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       if (data) {
         // Guardar firmante en la cuenta si no existe (para futuras ocasiones)
         const exists =
-          signers.some((s) => s.email === data.email && s.accountId === activeSchema.accountId) ||
+          signers.some((s) => s.email === data.email && s.accountId === template.accountId) ||
           processedNewEmails.has(data.email);
 
         if (!exists) {
@@ -183,7 +191,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     onSuccess();
   };
 
-  const selectedRule = getRuleByFaculty(faculty);
+  const selectedRule = getRuleLocal(faculty);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -223,8 +231,9 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
               <div className="flex gap-2">
                 <button
                   type="button"
+                  disabled={isSingleSigner}
                   onClick={() => setSigningOrder('sequential')}
-                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-md border p-2 text-xs transition-colors ${signingOrder === 'sequential' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white hover:bg-gray-100'}`}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-md border p-2 text-xs transition-colors ${signingOrder === 'sequential' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white hover:bg-gray-100'} ${isSingleSigner ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
                   <ArrowDownUp className="h-4 w-4" />
                   Secuencial
@@ -270,7 +279,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
                     {selectedRule.combinations.map((combo, i) => (
                       <li key={combo.id}>
                         {combo.requirements.map((req, j) => {
-                          const group = getGroupById(req.groupId);
+                          const group = getGroupLocal(req.groupId);
                           const groupName = group ? group.name : req.groupId;
                           return (
                             <span key={j}>

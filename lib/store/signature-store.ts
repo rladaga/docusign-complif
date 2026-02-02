@@ -338,13 +338,8 @@ export const useSignatureStore = create<SignatureState>()(
           request.status = DocumentStatus.PENDING;
 
           // Enviar invitaciones iniciales
-          const isSequential = request.settings?.signingOrder === 'sequential';
-          const firstOrder = Math.min(...request.signers.map((s) => s.order));
-
           request.signers.forEach((signer) => {
-            if (!isSequential || signer.order === firstOrder) {
-              NotificationService.sendInvitation(signer, request.id, request.faculty);
-            }
+            NotificationService.sendInvitation(signer, request.id, request.faculty);
           });
 
           console.log(`Enviando solicitud de firma a ${request.signers.length} firmantes`);
