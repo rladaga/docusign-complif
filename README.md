@@ -116,7 +116,7 @@ Un resumen de los directorios más importantes:
 Este repositorio está optimizado para trabajar con agentes de AI (Cursor, Devin, Copilot).
 
 - **`.cursorrules`**: Contiene las reglas de codificación, stack tecnológico y directrices específicas para el editor Cursor.
-- **`docs/AI_CONTEXT.md`**: Documentación técnica profunda sobre la arquitectura, el modelo de datos y la lógica de negocio (Combinatoria, PDF Coordinates) para dar contexto a los agentes.
+- **`AI_CONTEXT.md`**: Documentación técnica profunda sobre la arquitectura, el modelo de datos y la lógica de negocio (Combinatoria, PDF Coordinates) para dar contexto a los agentes.
 
 Si utilizas una herramienta de AI, asegúrate de que tenga acceso a estos archivos para obtener los mejores resultados.
 
