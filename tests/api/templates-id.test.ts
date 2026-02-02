@@ -17,6 +17,11 @@ function createMockRequest(body: any = null, method: string = 'GET'): Request {
   return new Request('http://localhost/api/templates/123', init);
 }
 
+// Helper para crear params como Promise
+function createMockParams(id: string) {
+  return { params: Promise.resolve({ id }) };
+}
+
 describe('API Route: /api/templates/[id]', () => {
   // Limpiar la base de datos antes de cada test
   beforeEach(() => {
@@ -27,7 +32,7 @@ describe('API Route: /api/templates/[id]', () => {
   describe('GET', () => {
     it('debe devolver 404 si el template no existe', async () => {
       const request = createMockRequest();
-      const response = await GET(request, { params: { id: 'non-existent' } });
+      const response = await GET(request, createMockParams('non-existent'));
       expect(response.status).toBe(404);
     });
 
@@ -36,7 +41,7 @@ describe('API Route: /api/templates/[id]', () => {
       db.create(template);
 
       const request = createMockRequest();
-      const response = await GET(request, { params: { id: 't1' } });
+      const response = await GET(request, createMockParams('t1'));
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -48,7 +53,7 @@ describe('API Route: /api/templates/[id]', () => {
   describe('PUT', () => {
     it('debe devolver 404 si el template a actualizar no existe', async () => {
       const request = createMockRequest({ name: 'Updated' }, 'PUT');
-      const response = await PUT(request, { params: { id: 'non-existent' } });
+      const response = await PUT(request, createMockParams('non-existent'));
       expect(response.status).toBe(404);
     });
 
@@ -57,7 +62,7 @@ describe('API Route: /api/templates/[id]', () => {
       db.create(template);
 
       const request = createMockRequest({ name: 'Updated' }, 'PUT');
-      const response = await PUT(request, { params: { id: 't1' } });
+      const response = await PUT(request, createMockParams('t1'));
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -72,7 +77,7 @@ describe('API Route: /api/templates/[id]', () => {
   describe('DELETE', () => {
     it('debe devolver 404 si el template a eliminar no existe', async () => {
       const request = createMockRequest(null, 'DELETE');
-      const response = await DELETE(request, { params: { id: 'non-existent' } });
+      const response = await DELETE(request, createMockParams('non-existent'));
       expect(response.status).toBe(404);
     });
 
@@ -81,7 +86,7 @@ describe('API Route: /api/templates/[id]', () => {
       db.create(template);
 
       const request = createMockRequest(null, 'DELETE');
-      const response = await DELETE(request, { params: { id: 't1' } });
+      const response = await DELETE(request, createMockParams('t1'));
       const data = await response.json();
 
       expect(response.status).toBe(200);

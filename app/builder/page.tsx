@@ -1,17 +1,41 @@
 'use client';
 
 import { useState } from 'react';
+import dynamicImport from 'next/dynamic';
 import { useTemplateStore } from '@/lib/store/template-store';
-import {
-  PDFViewer,
-  FieldOverlay,
-  FieldToolbar,
-  SignerPanel,
-  FieldProperties,
-} from '@/components/pdf-builder';
 import { FieldType } from '@/lib/types/template';
 import { Save, ArrowLeft, EyeOff, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+// Dynamically import PDF-related components to avoid SSR issues
+const PDFViewer = dynamicImport(
+  () => import('@/components/pdf-builder').then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+  }
+);
+
+const FieldOverlay = dynamicImport(
+  () => import('@/components/pdf-builder').then((mod) => mod.FieldOverlay),
+  { ssr: false }
+);
+
+const FieldToolbar = dynamicImport(
+  () => import('@/components/pdf-builder').then((mod) => mod.FieldToolbar),
+  { ssr: false }
+);
+
+const SignerPanel = dynamicImport(
+  () => import('@/components/pdf-builder').then((mod) => mod.SignerPanel),
+  { ssr: false }
+);
+
+const FieldProperties = dynamicImport(
+  () => import('@/components/pdf-builder').then((mod) => mod.FieldProperties),
+  { ssr: false }
+);
+
+export const dynamic = 'force-dynamic';
 
 export default function BuilderPage() {
   const router = useRouter();

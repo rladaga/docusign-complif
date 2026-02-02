@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/mocks/mock-db';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/templates/[id]
 export async function GET(request: Request, { params }: RouteParams) {
-  const template = db.getById(params.id);
+  const { id } = await params;
+  const template = db.getById(id);
 
   if (!template) {
     return NextResponse.json({ error: 'Template not found' }, { status: 404 });
@@ -19,8 +20,9 @@ export async function GET(request: Request, { params }: RouteParams) {
 // PUT /api/templates/[id]
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const updated = db.update(params.id, body);
+    const updated = db.update(id, body);
 
     if (!updated) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
@@ -34,7 +36,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
 // DELETE /api/templates/[id]
 export async function DELETE(request: Request, { params }: RouteParams) {
-  const success = db.delete(params.id);
+  const { id } = await params;
+  const success = db.delete(id);
 
   if (!success) {
     return NextResponse.json({ error: 'Template not found' }, { status: 404 });
@@ -42,6 +45,6 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
   return NextResponse.json({
     success: true,
-    message: `Template ${params.id} deleted successfully`,
+    message: `Template ${id} deleted successfully`,
   });
 }
