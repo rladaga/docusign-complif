@@ -1,19 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTemplateStore } from '@/lib/store/template-store';
+import { useSchemaStore } from '@/lib/store/schema-store';
 import { useRouter } from 'next/navigation';
-import { Plus, FileText, Calendar, Trash2, Edit, Copy, Send } from 'lucide-react';
+import {
+  Plus,
+  FileText,
+  Calendar,
+  Trash2,
+  Edit,
+  Copy,
+  Send,
+  Building2,
+  FileJson,
+  History,
+  X,
+} from 'lucide-react';
 import { Template } from '@/lib/types';
 // Importamos el modal que creamos en el paso anterior
 import { CreateRequestModal } from '@/components/signature-flow/CreateRequestModal';
 
 export default function TemplatesPage() {
   const router = useRouter();
-  const { templates, createTemplate, deleteTemplate, duplicateTemplate, loadTemplate } =
-    useTemplateStore();
+  const {
+    templates,
+    createTemplate,
+    deleteTemplate,
+    duplicateTemplate,
+    loadTemplate,
+    createNewVersion,
+  } = useTemplateStore();
+  const { accounts } = useSchemaStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
+  const [versionTemplateId, setVersionTemplateId] = useState<string | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+
+  useEffect(() => {
+    if (accounts.length > 0 && !selectedAccountId) {
+      setSelectedAccountId(accounts[0].id);
+    }
+  }, [accounts, selectedAccountId]);
+
+  const filteredTemplates = templates.filter((t) => t.accountId === selectedAccountId);
 
   // Estado para controlar qué template se está enviando a firmar
   const [selectedTemplateForRequest, setSelectedTemplateForRequest] = useState<Template | null>(
@@ -21,13 +52,43 @@ export default function TemplatesPage() {
   );
 
   const handleCreateTemplate = (name: string, pdfUrl: string, pdfFileName: string) => {
-    createTemplate(name, pdfUrl, pdfFileName, 1);
-    setShowCreateModal(false);
+    if (selectedAccountId) {
+      createTemplate(selectedAccountId, name, pdfUrl, pdfFileName, 1);
+      setShowCreateModal(false);
+    }
   };
 
   const handleOpenBuilder = (templateId: string) => {
     loadTemplate(templateId);
     router.push('/builder');
+  };
+
+  const handleExportJson = (template: Template) => {
+    const jsonString = JSON.stringify(template, null, 2);
+    console.log('Template Configuration (JSON):', jsonString);
+
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${template.name.replace(/\s+/g, '_')}_v${template.version}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCreateVersion = (templateId: string) => {
+    setVersionTemplateId(templateId);
+    setShowVersionModal(true);
+  };
+
+  const handleVersionSubmit = (description: string) => {
+    if (versionTemplateId) {
+      createNewVersion(versionTemplateId, description);
+      setShowVersionModal(false);
+      setVersionTemplateId(null);
+    }
   };
 
   return (
@@ -40,20 +101,36 @@ export default function TemplatesPage() {
               <h1 className="text-2xl font-bold text-gray-800">Templates</h1>
               <p className="text-sm text-gray-600">Administra tus formularios PDF</p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-            >
-              <Plus className="h-5 w-5" />
-              Nuevo Template
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 rounded-lg border bg-gray-50 px-3 py-2">
+                <Building2 className="h-4 w-4 text-gray-500" />
+                <select
+                  value={selectedAccountId}
+                  onChange={(e) => setSelectedAccountId(e.target.value)}
+                  className="bg-transparent text-sm font-medium text-gray-700 focus:outline-none"
+                >
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+              >
+                <Plus className="h-5 w-5" />
+                Nuevo Template
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">
-        {templates.length === 0 ? (
+        {filteredTemplates.length === 0 ? (
           <div className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white">
             <div className="text-center">
               <FileText className="mx-auto h-12 w-12 text-gray-400" />
@@ -72,7 +149,7 @@ export default function TemplatesPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {templates.map((template) => (
+            {filteredTemplates.map((template) => (
               <div
                 key={template.id}
                 className="flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
@@ -118,13 +195,30 @@ export default function TemplatesPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleOpenBuilder(template.id)}
-                      className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
                       <Edit className="h-3.5 w-3.5" /> Editar
                     </button>
+
+                    <button
+                      onClick={() => handleCreateVersion(template.id)}
+                      className="cursor-pointer rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50"
+                      title="Crear Nueva Versión"
+                    >
+                      <History className="h-4 w-4" />
+                    </button>
+
+                    <button
+                      onClick={() => handleExportJson(template)}
+                      className="cursor-pointer rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50"
+                      title="Exportar JSON Config"
+                    >
+                      <FileJson className="h-4 w-4" />
+                    </button>
+
                     <button
                       onClick={() => duplicateTemplate(template.id)}
-                      className="rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50"
+                      className="cursor-pointer rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50"
                       title="Duplicar"
                     >
                       <Copy className="h-4 w-4" />
@@ -135,7 +229,7 @@ export default function TemplatesPage() {
                           deleteTemplate(template.id);
                         }
                       }}
-                      className="rounded-lg border border-gray-300 bg-white p-2 text-red-600 hover:border-red-200 hover:bg-red-50"
+                      className="cursor-pointer rounded-lg border border-gray-300 bg-white p-2 text-red-600 hover:border-red-200 hover:bg-red-50"
                       title="Eliminar"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -156,6 +250,14 @@ export default function TemplatesPage() {
         />
       )}
 
+      {/* Modal Crear Versión */}
+      {showVersionModal && (
+        <CreateVersionModal
+          onClose={() => setShowVersionModal(false)}
+          onCreate={handleVersionSubmit}
+        />
+      )}
+
       {/* Modal Enviar a Firmar (CreateRequest) */}
       {selectedTemplateForRequest && (
         <CreateRequestModal
@@ -167,6 +269,67 @@ export default function TemplatesPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function CreateVersionModal({
+  onClose,
+  onCreate,
+}: {
+  onClose: () => void;
+  onCreate: (description: string) => void;
+}) {
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!description.trim()) return;
+    onCreate(description);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="animate-in fade-in zoom-in w-full max-w-md rounded-xl bg-white p-6 shadow-2xl duration-200">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Nueva Versión</h2>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-gray-100">
+            <X className="h-5 w-5 text-gray-500" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Descripción del cambio
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-black focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+              placeholder='Ej: "Se agregó campo de fecha"'
+              rows={3}
+              required
+              autoFocus
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={!description.trim()}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              Crear Versión
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

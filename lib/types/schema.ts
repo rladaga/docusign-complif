@@ -157,7 +157,6 @@ export enum DocumentStatus {
   COMPLETED = 'COMPLETED', // Combinación válida completada
   EXPIRED = 'EXPIRED', // Expiró el tiempo
   DECLINED = 'DECLINED', // Alguien rechazó firmar
-  CANCELLED = 'CANCELLED', // Cancelado por el creador
 }
 
 /**

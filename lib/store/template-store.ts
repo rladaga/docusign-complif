@@ -40,7 +40,13 @@ interface TemplateState {
   showGrid: boolean;
 
   // Actions - Templates
-  createTemplate: (name: string, pdfUrl: string, pdfFileName: string, totalPages: number) => void;
+  createTemplate: (
+    accountId: string,
+    name: string,
+    pdfUrl: string,
+    pdfFileName: string,
+    totalPages: number
+  ) => void;
   loadTemplate: (templateId: string) => void;
   saveTemplate: () => void;
   deleteTemplate: (templateId: string) => void;
@@ -54,7 +60,7 @@ interface TemplateState {
   selectField: (fieldId: string | null) => void;
 
   // Actions - Signers
-  addSigner: (name: string) => void;
+  addSigner: (name: string, linkedGroupId?: string) => void;
   updateSigner: (signerId: string, updates: Partial<SignerRole>) => void;
   deleteSigner: (signerId: string) => void;
 
@@ -106,10 +112,11 @@ export const useTemplateStore = create<TemplateState>()(
       // TEMPLATE ACTIONS
       // =================
 
-      createTemplate: (name, pdfUrl, pdfFileName, totalPages) => {
+      createTemplate: (accountId, name, pdfUrl, pdfFileName, totalPages) => {
         set((state) => {
           const newTemplate: Template = {
             id: nanoid(),
+            accountId,
             name,
             description: '',
             version: 1,
@@ -119,7 +126,7 @@ export const useTemplateStore = create<TemplateState>()(
             fields: [],
             signers: [],
             settings: { ...defaultSettings },
-            createdBy: 'current-user', // TODO: Get from auth
+            createdBy: 'current-user',
             createdAt: new Date(),
             updatedAt: new Date(),
             isArchived: false,
@@ -268,7 +275,7 @@ export const useTemplateStore = create<TemplateState>()(
       // SIGNER ACTIONS
       // ===============
 
-      addSigner: (name) => {
+      addSigner: (name, linkedGroupId) => {
         set((state) => {
           if (!state.currentTemplate) return;
 
@@ -280,6 +287,7 @@ export const useTemplateStore = create<TemplateState>()(
             name,
             order: state.currentTemplate.signers.length + 1,
             color: colors[colorIndex],
+            linkedGroupId,
           };
 
           state.currentTemplate.signers.push(newSigner);

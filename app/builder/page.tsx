@@ -154,12 +154,12 @@ export default function BuilderPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Toolbar */}
         {!isPreview && (
-          <aside className="w-64 border-r bg-white p-4">
+          <aside className="flex w-80 flex-col gap-4 border-r bg-white p-4">
             <FieldToolbar onAddField={handleAddField} />
             <SignerPanel />
 
             {/* Field List */}
-            <div className="mt-6">
+            <div className="flex-1 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50 p-2">
               <h3 className="mb-2 text-sm font-semibold text-gray-700">
                 Campos en esta página ({currentPageFields.length})
               </h3>
@@ -177,6 +177,11 @@ export default function BuilderPage() {
                     {field.label || field.type}
                   </button>
                 ))}
+                {currentPageFields.length === 0 && (
+                  <p className="py-4 text-center text-xs text-gray-400">
+                    No hay campos en esta página
+                  </p>
+                )}
               </div>
             </div>
 

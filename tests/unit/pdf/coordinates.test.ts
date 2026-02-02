@@ -35,11 +35,15 @@ describe('PDF Coordinates', () => {
 
   describe('normalizeCoordinates', () => {
     it('should keep coordinates within page bounds', () => {
-      const coords = { x: 1000, y: 1000, width: 200, height: 50 };
+      // Coordenadas exageradas para forzar el "clamp"
+      const coords = { x: 1000, y: 2000, width: 200, height: 50 };
       const normalized = normalizeCoordinates(coords, pageInfo);
 
-      expect(normalized.x).toBeLessThanOrEqual(pageInfo.width * pageInfo.scale);
-      expect(normalized.y).toBeLessThanOrEqual(pageInfo.height * pageInfo.scale);
+      const maxWidth = pageInfo.width * pageInfo.scale;
+      const maxHeight = pageInfo.height * pageInfo.scale;
+
+      expect(normalized.x + normalized.width).toBeLessThanOrEqual(maxWidth);
+      expect(normalized.y + normalized.height).toBeLessThanOrEqual(maxHeight);
     });
   });
 });

@@ -34,18 +34,22 @@ interface SignatureInterfaceProps {
 }
 
 export function SignatureInterface({
-  request,
+  request: initialRequest,
   signer,
   template,
   onComplete,
 }: SignatureInterfaceProps) {
-  const { signField, completeSignerSignature } = useSignatureStore();
+  const { signField, completeSignerSignature, declineRequest, requests } = useSignatureStore();
+
+  // Usar la versión del store para asegurar reactividad inmediata al cambiar estado (ej: DECLINED)
+  const request = requests.find((r) => r.id === initialRequest.id) || initialRequest;
 
   // Estado local
   const [completedFields, setCompletedFields] = useState<Set<string>>(new Set());
   const [currentFieldId, setCurrentFieldId] = useState<string | null>(null);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [modalType, setModalType] = useState<'signature' | 'initials'>('signature');
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
 
   // [NUEVO] Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,6 +80,24 @@ export function SignatureInterface({
         <p className="mt-2 max-w-md text-gray-600">
           El tiempo límite para firmar este documento ha finalizado. Por favor, contacta al
           remitente para solicitar una nueva invitación.
+        </p>
+      </div>
+    );
+  }
+
+  // 1.5 Validación de Rechazo
+  if (request.status === DocumentStatus.DECLINED) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center">
+        <div className="mb-4 rounded-full bg-red-100 p-4">
+          <X className="h-10 w-10 text-red-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900">Documento Rechazado</h1>
+        <p className="mt-2 max-w-md text-gray-600">
+          Este documento ha sido rechazado por{' '}
+          <span className="font-medium">{request.declinedBy}</span>.
+          <br />
+          <span className="text-sm italic">"{request.declineReason}"</span>
         </p>
       </div>
     );
@@ -175,6 +197,15 @@ export function SignatureInterface({
     }
     completeSignerSignature(request.id, signer.id);
     onComplete();
+  };
+
+  const handleDecline = () => {
+    setShowDeclineModal(true);
+  };
+
+  const confirmDecline = () => {
+    declineRequest(request.id, signer.id, 'Rechazado por el usuario');
+    setShowDeclineModal(false);
   };
 
   const allFieldsCompleted = completedFields.size === myFields.length;
@@ -302,7 +333,14 @@ export function SignatureInterface({
       </div>
 
       {/* Botón Flotante Final */}
-      <div className="fixed right-8 bottom-8 z-30">
+      <div className="fixed right-8 bottom-8 z-30 flex gap-4">
+        <button
+          onClick={handleDecline}
+          className="flex items-center gap-2 rounded-full bg-red-100 px-6 py-4 font-bold text-red-700 shadow-xl transition-all hover:bg-red-200"
+        >
+          <X className="h-5 w-5" /> Rechazar
+        </button>
+
         <button
           onClick={handleCompleteAllFields}
           disabled={!allFieldsCompleted}
@@ -359,6 +397,40 @@ export function SignatureInterface({
                 className="flex-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700"
               >
                 {modalType === 'signature' ? 'Aplicar Firma' : 'Aplicar Iniciales'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Rechazo */}
+      {showDeclineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="animate-in fade-in zoom-in w-full max-w-md rounded-xl bg-white p-6 shadow-2xl duration-200">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Rechazar Documento</h2>
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="rounded-full p-2 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <p className="mb-6 text-sm text-gray-600">
+              ¿Estás seguro de que deseas rechazar este documento? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeclineModal(false)}
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDecline}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 font-bold text-white shadow-lg hover:bg-red-700"
+              >
+                Sí, Rechazar
               </button>
             </div>
           </div>

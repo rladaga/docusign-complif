@@ -1,35 +1,35 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { FileText, FileSignature, Building2, Settings } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-white shadow-sm">
+      <aside className="flex w-64 flex-col overflow-y-auto border-r bg-white shadow-sm">
         <div className="p-6">
-          <div className="flex items-center gap-2">
-            <FileSignature className="h-8 w-8 text-indigo-600" />
+          <div className="ml-2 flex items-center gap-2">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Complif</h1>
+              <Image src="/logos/complif-logo.svg" alt="Complif Logo" width={120} height={32} />
               <p className="text-xs text-gray-500">Signature Platform</p>
             </div>
           </div>
         </div>
 
-        <nav className="space-y-1 px-3">
+        <nav className="flex-1 space-y-1 px-3">
           <NavLink href="/admin/templates" icon={FileText} label="Templates" />
-          <NavLink href="/admin/requests" icon={FileSignature} label="Signature Requests" />
+          <NavLink href="/admin/requests" icon={FileSignature} label="Solicitudes de Firma" />
           <NavLink href="/admin/accounts" icon={Building2} label="Cuentas" />
           <NavLink href="/admin/schemas" icon={Settings} label="Schemas" />
         </nav>
 
-        <div className="absolute bottom-0 w-64 border-t p-4">
+        <div className="border-t p-4">
           <p className="text-xs text-gray-500">Challenge Complif 2026</p>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

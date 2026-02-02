@@ -1,40 +1,67 @@
-export interface Dimensions {
+export interface PageInfo {
+  width: number;
+  height: number;
+  scale: number;
+}
+
+export interface Coordinates {
+  x: number;
+  y: number;
   width: number;
   height: number;
 }
 
-export interface Rect extends Dimensions {
-  x: number;
-  y: number;
-}
+/**
+ * Convierte coordenadas de pantalla (Top-Left) a coordenadas PDF (Bottom-Left)
+ * Útil para guardar la posición de un campo en el backend.
+ */
+export function screenToPDF(screen: Coordinates, page: PageInfo): Coordinates {
+  const { scale, height: pageHeight } = page;
 
-export interface PageInfo extends Dimensions {
-  scale?: number; // El zoom que usaste en el Builder (ej: 1.5)
+  // 1. Des-escalar dimensiones
+  const width = screen.width / scale;
+  const height = screen.height / scale;
+
+  // 2. Des-escalar X
+  const x = screen.x / scale;
+
+  // 3. Invertir eje Y (PDF es bottom-left)
+  // PDF_Y = PageHeight - Unscaled_Screen_Y - Unscaled_Height
+  const y = pageHeight - screen.y / scale - height;
+
+  return { x, y, width, height };
 }
 
 /**
- * Convierte coordenadas de Pantalla (Top-Left) a PDF (Bottom-Left)
- * y ajusta la escala.
+ * Convierte coordenadas PDF (Bottom-Left) a coordenadas de pantalla (Top-Left)
+ * Útil para renderizar los campos sobre el PDF en el navegador.
  */
-export function screenToPDF(rect: Rect, page: PageInfo): Rect {
-  // 1. Definir la escala. Si no se pasa, asumimos 1.5 que es el default de tu Builder.
-  // IMPORTANTE: Si cambias el scale en el Builder, tenés que cambiarlo acá.
-  const scale = page.scale || 1.5;
+export function pdfToScreen(pdf: Coordinates, page: PageInfo): Coordinates {
+  const { scale, height: pageHeight } = page;
 
-  // 2. Des-escalar (volver al tamaño real del PDF en puntos)
-  const realX = rect.x / scale;
-  const realY = rect.y / scale;
-  const realWidth = rect.width / scale;
-  const realHeight = rect.height / scale;
+  // 1. Escalar dimensiones
+  const width = pdf.width * scale;
+  const height = pdf.height * scale;
 
-  // 3. Invertir el eje Y
-  // En PDF: Y = AlturaPagina - Y_Pantalla - AlturaObjeto
-  const pdfY = page.height - realY - realHeight;
+  // 2. Escalar X
+  const x = pdf.x * scale;
 
-  return {
-    x: realX,
-    y: pdfY,
-    width: realWidth,
-    height: realHeight,
-  };
+  // 3. Invertir eje Y y escalar
+  // Screen_Y = (PageHeight - PDF_Y - PDF_Height) * Scale
+  const y = (pageHeight - pdf.y - pdf.height) * scale;
+
+  return { x, y, width, height };
+}
+
+export function normalizeCoordinates(coords: Coordinates, page: PageInfo): Coordinates {
+  const maxWidth = page.width * page.scale;
+  const maxHeight = page.height * page.scale;
+
+  let { x, y, width, height } = coords;
+
+  // Clamp (restringir) para que no se salga de la página
+  x = Math.max(0, Math.min(x, maxWidth - width));
+  y = Math.max(0, Math.min(y, maxHeight - height));
+
+  return { x, y, width, height };
 }

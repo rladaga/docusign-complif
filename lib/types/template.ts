@@ -18,6 +18,7 @@ export interface Template {
   id: string;
   name: string;
   description?: string;
+  accountId: string; // Vinculación a la cuenta
 
   // Versionado
   version: number; // Se incrementa cada vez que se modifica
@@ -128,6 +129,7 @@ export interface SignerRole {
   // Opcional: email y nombre pre-llenados (si ya se conocen)
   defaultEmail?: string;
   defaultName?: string;
+  linkedGroupId?: string; // Vinculación con un grupo del Schema (ej: "group-legal")
 }
 
 // ===============================================

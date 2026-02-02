@@ -22,6 +22,7 @@ import {
   Faculty,
   SignatureCombination,
 } from '@/lib/types';
+import { NotificationService } from '@/lib/services/notifications';
 
 import {
   calculateValidCombinations,
@@ -48,6 +49,10 @@ interface SignatureState {
   ) => string;
   loadRequest: (requestId: string) => void;
 
+  // Actions - Reminders
+  checkAndSendReminders: () => void;
+  sendManualReminder: (requestId: string, signerId: string) => void;
+
   // Actions - Signers
   addSigner: (
     requestId: string,
@@ -67,7 +72,6 @@ interface SignatureState {
 
   // Actions - Status
   sendForSignature: (requestId: string) => void;
-  cancelRequest: (requestId: string) => void;
 
   // Actions - Combinations
   calculateCombinations: (
@@ -117,7 +121,7 @@ export const useSignatureStore = create<SignatureState>()(
             signers: [],
             validCombinations: [],
             signatures: [],
-            createdBy: 'current-user', // TODO: Get from auth
+            createdBy: 'current-user',
             createdAt: new Date(),
             expiresAt: expirationDays > 0 ? expiresAt : undefined,
             settings: {
@@ -251,6 +255,22 @@ export const useSignatureStore = create<SignatureState>()(
           signer.status = SignerStatus.COMPLETED;
           signer.signedAt = new Date();
 
+          // [NUEVO] Si es secuencial, invitar a los siguientes en la cadena
+          if (request.settings?.signingOrder === 'sequential') {
+            const currentOrder = signer.order;
+            const sameOrderSigners = request.signers.filter((s) => s.order === currentOrder);
+            const allCurrentCompleted = sameOrderSigners.every(
+              (s) => s.status === SignerStatus.COMPLETED
+            );
+
+            if (allCurrentCompleted) {
+              const nextSigners = request.signers.filter((s) => s.order === currentOrder + 1);
+              nextSigners.forEach((s) =>
+                NotificationService.sendInvitation(s, request.id, request.faculty)
+              );
+            }
+          }
+
           console.log(`🔍 Firmante ${signer.name} marcado como COMPLETED`);
           console.log(
             `🔍 Firmantes actuales:`,
@@ -319,16 +339,17 @@ export const useSignatureStore = create<SignatureState>()(
 
           request.status = DocumentStatus.PENDING;
 
+          // [NUEVO] Enviar invitaciones iniciales
+          const isSequential = request.settings?.signingOrder === 'sequential';
+          const firstOrder = Math.min(...request.signers.map((s) => s.order));
+
+          request.signers.forEach((signer) => {
+            if (!isSequential || signer.order === firstOrder) {
+              NotificationService.sendInvitation(signer, request.id, request.faculty);
+            }
+          });
+
           console.log(`Sending signature request to ${request.signers.length} signers`);
-        });
-      },
-
-      cancelRequest: (requestId) => {
-        set((state) => {
-          const request = state.requests.find((r) => r.id === requestId);
-          if (!request) return;
-
-          request.status = DocumentStatus.CANCELLED;
         });
       },
 
@@ -392,6 +413,76 @@ export const useSignatureStore = create<SignatureState>()(
               console.warn(`Request ${requestId} has no remaining valid combinations`);
             }
           }
+        });
+      },
+
+      // ===================
+      // REMINDERS LOGIC
+      // ===================
+
+      checkAndSendReminders: () => {
+        set((state) => {
+          const now = new Date();
+          state.requests.forEach((request) => {
+            if (
+              request.status !== DocumentStatus.PENDING &&
+              request.status !== DocumentStatus.IN_PROGRESS
+            )
+              return;
+            if (
+              !request.settings?.reminderFrequency ||
+              request.settings.reminderFrequency === 'never'
+            )
+              return;
+
+            request.signers.forEach((signer) => {
+              if (
+                signer.status !== SignerStatus.PENDING &&
+                signer.status !== SignerStatus.IN_PROGRESS
+              )
+                return;
+
+              // Verificar turno si es secuencial
+              if (request.settings?.signingOrder === 'sequential') {
+                const previousSigners = request.signers.filter((s) => s.order < signer.order);
+                if (previousSigners.some((s) => s.status !== SignerStatus.COMPLETED)) return;
+              }
+
+              const lastSent = signer.lastReminderSentAt
+                ? new Date(signer.lastReminderSentAt)
+                : new Date(request.createdAt);
+              const diffDays = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60 * 24);
+
+              let shouldSend = false;
+              switch (request.settings?.reminderFrequency) {
+                case 'daily':
+                  shouldSend = diffDays >= 1;
+                  break;
+                case 'weekly':
+                  shouldSend = diffDays >= 7;
+                  break;
+              }
+
+              if (shouldSend) {
+                NotificationService.sendReminder(signer, request.id);
+                signer.lastReminderSentAt = now;
+                signer.reminderCount = (signer.reminderCount || 0) + 1;
+              }
+            });
+          });
+        });
+      },
+
+      sendManualReminder: (requestId, signerId) => {
+        set((state) => {
+          const request = state.requests.find((r) => r.id === requestId);
+          if (!request) return;
+          const signer = request.signers.find((s) => s.id === signerId);
+          if (!signer) return;
+
+          NotificationService.sendReminder(signer, request.id);
+          signer.lastReminderSentAt = new Date();
+          signer.reminderCount = (signer.reminderCount || 0) + 1;
         });
       },
 

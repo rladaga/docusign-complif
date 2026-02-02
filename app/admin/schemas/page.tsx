@@ -15,24 +15,26 @@ export default function SchemasPage() {
   const filteredSchemas = schemas.filter((s) => s.accountId === selectedAccount);
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="mb-8 text-3xl font-bold text-black">Esquemas de Firma</h1>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="container mx-auto py-8">
+        <h1 className="mb-8 text-3xl font-bold text-black">Esquemas de Firma</h1>
 
-      {/* Account selector */}
-      <div className="mb-6 rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold text-black">Seleccionar Cuenta</h2>
-        <select
-          className="w-full rounded-lg border p-2 text-black"
-          value={selectedAccount || ''}
-          onChange={(e) => setSelectedAccount(e.target.value)}
-        >
-          <option value="">-- Seleccione una cuenta --</option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </select>
+        {/* Account selector */}
+        <div className="mb-6 rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-black">Seleccionar Cuenta</h2>
+          <select
+            className="w-full rounded-lg border p-2 text-black"
+            value={selectedAccount || ''}
+            onChange={(e) => setSelectedAccount(e.target.value)}
+          >
+            <option value="">Seleccione una cuenta</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {selectedAccount && (
