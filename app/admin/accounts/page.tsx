@@ -5,13 +5,15 @@ import { useSchemaStore } from '@/lib/store/schema-store';
 import { X } from 'lucide-react';
 
 export default function AccountsPage() {
-  const { accounts, schemas, signers, createGroup, createSigner, setActiveSchemaId } =
+  const { accounts, schemas, signers, createGroup, createSigner, setActiveSchemaId, createSchema } =
     useSchemaStore();
 
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
   // Buscamos el esquema activo para la cuenta seleccionada
-  const activeSchemaForAccount = schemas.find((s) => s.accountId === selectedAccount && s.isActive);
+  const activeSchemaForAccount =
+    schemas.find((s) => s.accountId === selectedAccount && s.isActive) ||
+    schemas.find((s) => s.accountId === selectedAccount);
   const currentGroups = activeSchemaForAccount ? activeSchemaForAccount.groups : [];
 
   const currentSigners = signers.filter((s) => s.accountId === selectedAccount);
@@ -23,7 +25,20 @@ export default function AccountsPage() {
 
   const handleCreateGroup = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (newGroup.name) {
+    if (!selectedAccount) return;
+
+    let schemaId = activeSchemaForAccount?.id;
+
+    // Si no existe un esquema para esta cuenta, lo creamos automáticamente
+    if (!schemaId) {
+      createSchema(selectedAccount, 'Schema Principal');
+      // Accedemos al estado actualizado directamente para obtener el ID del nuevo esquema
+      const updatedSchemas = useSchemaStore.getState().schemas;
+      schemaId = updatedSchemas.find((s) => s.accountId === selectedAccount)?.id;
+    }
+
+    if (newGroup.name && schemaId) {
+      setActiveSchemaId(schemaId);
       createGroup(newGroup.name, newGroup.description);
       setShowGroupModal(false);
       setNewGroup({ name: '', description: '' });
@@ -32,7 +47,14 @@ export default function AccountsPage() {
 
   const handleCreateSigner = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (newSigner.name && newSigner.email && newSigner.groupId) {
+    if (!selectedAccount) return;
+
+    const schemaId =
+      activeSchemaForAccount?.id ||
+      useSchemaStore.getState().schemas.find((s) => s.accountId === selectedAccount)?.id;
+
+    if (newSigner.name && newSigner.email && newSigner.groupId && schemaId) {
+      setActiveSchemaId(schemaId);
       createSigner(newSigner.name, newSigner.email, [newSigner.groupId]);
       setShowSignerModal(false);
       setNewSigner({ name: '', email: '', groupId: '' });
@@ -54,7 +76,9 @@ export default function AccountsPage() {
                 onClick={() => {
                   setSelectedAccount(account.id);
 
-                  const schema = schemas.find((s) => s.accountId === account.id && s.isActive);
+                  const schema =
+                    schemas.find((s) => s.accountId === account.id && s.isActive) ||
+                    schemas.find((s) => s.accountId === account.id);
                   if (schema) setActiveSchemaId(schema.id);
                 }}
                 className={`block w-full rounded-lg border p-4 text-left text-black transition ${
