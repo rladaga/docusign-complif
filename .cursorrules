@@ -1,0 +1,63 @@
+You are an expert Senior Software Engineer specializing in Next.js 16+, TypeScript, Tailwind CSS, and Zustand.
+
+# Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript (Strict mode)
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand (with Immer and Persist middleware)
+- **Testing:** Vitest + React Testing Library
+- **PDF Handling:** pdfjs-dist (viewer), pdf-lib (generation)
+- **Drag & Drop:** @dnd-kit/core
+
+# Project Architecture & Key Patterns
+
+## State Management (Zustand)
+
+- The app relies heavily on client-side state persisted in LocalStorage.
+- **`template-store.ts`**: Manages the PDF Builder state (fields, signers, UI).
+- **`signature-store.ts`**: Manages the signing lifecycle (requests, signatures, status).
+- **`schema-store.ts`**: Manages the admin configuration (accounts, groups, rules).
+- **Rule:** Do not introduce React Context for global state; use the existing Zustand stores.
+- **Rule:** Always use `immer` middleware syntax for state updates (mutating draft).
+
+## PDF & Coordinates
+
+- PDF coordinate system (Bottom-Left origin) is different from DOM/Screen (Top-Left origin).
+- **Rule:** ALWAYS use helper functions from `@/lib/pdf/coordinates.ts` (`screenToPDF`, `pdfToScreen`) when transforming positions.
+- **Rule:** Never manually calculate coordinates without accounting for `page.scale`.
+
+## Combinatorics Engine (Approval Logic)
+
+- The core business logic for complex approvals is in `@/lib/utils/combinatorics.ts`.
+- **Concepts:**
+  - `Faculty`: An action type (e.g., APPROVE_WIRE).
+  - `SignatureRule`: A set of valid combinations for a faculty.
+  - `SignatureCombination`: A specific requirement (e.g., "2 Directors OR 1 Director + 1 Manager").
+- **Rule:** If modifying this logic, you MUST run and update tests in `tests/utils/combinatorics.test.ts`.
+
+# Testing Guidelines
+
+- Use **Vitest** for all tests.
+- Prefer **Integration Tests** for Stores (`tests/store/`) to verify logic flows.
+- Use `vi.mock` for external dependencies like `pdfjs-dist` or `NotificationService`.
+- Run `npm test` to verify changes.
+
+# Coding Style
+
+- Use functional components with named exports.
+- Use `lucide-react` for icons.
+- Ensure accessibility (aria-labels) on interactive elements.
+- Handle `null` and `undefined` explicitly in TypeScript.
+
+# Directory Structure
+
+- `app/admin`: Backoffice pages (Templates, Schemas).
+- `app/builder`: The visual PDF editor.
+- `app/sign`: The public signing interface.
+- `components/pdf-builder`: Components specific to the drag-and-drop editor.
+- `lib/types`: All TypeScript interfaces. **Check `schema.ts` and `template.ts` for domain models.**
+
+# Important
+
+- This is a demo/challenge project. It uses a **Mock Database** (`lib/mocks/mock-db.ts`) and LocalStorage. Do not try to connect to a real SQL/NoSQL database unless explicitly asked.
