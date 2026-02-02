@@ -68,3 +68,43 @@
 - _lib/utils/combinatorics.ts_: Motor de validacion de combinaciones. Define qué combinaciones son válidas dada una lista de firmantes, si un documento está completo, qué combinaciones todavía son posibles y el progreso de cada combinación.
 
 - _lib/mocks/mock-db.ts_: Simula una base de datos en memoria para almacenar datos de cuentas, usuarios, templates, schemas y solicitudes de firma. Permite realizar operaciones CRUD básicas para pruebas y desarrollo sin necesidad de una base de datos real. Se usa para probar la API de CRUD de templates en _admin/api/templates/_
+
+## Decisiones Técnicas y Suposiciones
+
+### Decisiones de Arquitectura
+
+1.  **Gestión de Estado (Zustand + Immer):**
+    - **Por qué:** Se eligió Zustand por su simplicidad y bajo boilerplate comparado con Redux. El middleware `immer` permite mutar el estado de forma directa (draft state), lo que simplifica enormemente la lógica compleja de los reducers (especialmente para estructuras anidadas como `templates -> fields`).
+    - **Persistencia:** Se utilizó el middleware `persist` para guardar todo el estado en `localStorage`. Esto permite que la demo sea funcional y persistente entre recargas sin necesidad de levantar una base de datos real (Docker/Postgres), facilitando la evaluación del challenge.
+
+2.  **Manejo de PDFs (PDF.js + PDF-lib):**
+    - **Visualización:** Se usó `pdfjs-dist` para renderizar el PDF en un `<canvas>`. Es el estándar de la industria, aunque complejo de implementar en Next.js debido a los Web Workers (se configuró en `lib/pdf/config.ts`).
+    - **Edición/Generación:** Se usó `pdf-lib` para estampar las firmas y generar el documento final. Esta librería permite modificar PDFs existentes en el navegador (Client-Side) de manera eficiente.
+
+3.  **Sistema de Coordenadas:**
+    - **El Problema:** El DOM del navegador usa coordenadas con origen en la esquina superior izquierda (px). Los PDFs usan coordenadas con origen en la esquina inferior izquierda (pt).
+    - **La Solución:** Se implementó una capa de abstracción en `lib/pdf/coordinates.ts` (`screenToPDF`, `pdfToScreen`) que normaliza estas diferencias y maneja el factor de escala (zoom), asegurando que lo que el usuario ve en pantalla es exactamente donde se estampa la firma en el archivo final.
+    - **Limitacion**: Problemas de posicionamiento al tener un PDF en posicion landscape o rotado. Se asume que todos los PDFs estaran en orientacion portrait para simplificar el challenge.
+
+4.  **Motor de Combinatoria (Lógica de Aprobación):**
+    - **Decisión:** En lugar de hardcodear reglas ("si es manager, entonces..."), se construyó un motor genérico en `lib/utils/combinatorics.ts`.
+    - **Funcionamiento:** Evalúa reglas basadas en "Facultades" y "Combinaciones" (ej: 2 del Grupo A **O** 1 del Grupo A + 1 del Grupo B). Esto hace que el sistema sea escalable y configurable desde el UI sin tocar código.
+
+5.  **API Mockeada:**
+    - **Decisión:** Para cumplir con el requerimiento de "API para CRUD", se implementaron Route Handlers en Next.js (`app/api/...`) respaldados por una base de datos en memoria (`lib/mocks/mock-db.ts`).
+    - **Beneficio:** Permite probar el comportamiento de una API REST real (códigos de estado HTTP, métodos GET/POST/DELETE) sin la complejidad de configurar un backend real.
+
+### Suposiciones (Assumptions)
+
+1.  **Seguridad y Autenticación:**
+    - Se asume que en un entorno productivo existiría una capa de autenticación (Auth0/NextAuth). Para este challenge, la identidad del usuario se simula o se selecciona mediante dropdowns (ej: "Firmar como Juan").
+    - Las firmas se guardan como Base64. En producción, esto requeriría certificados digitales reales para tener validez legal estricta.
+
+2.  **Concurrencia:**
+    - Al ser una demo basada en `localStorage` y estado en memoria, se asume un entorno monousuario. No se manejan conflictos de edición simultánea (ej: dos admins editando el mismo template a la vez).
+
+3.  **Persistencia de Archivos:**
+    - Los archivos PDF se convierten a Base64 para almacenarlos en el store/localStorage. Se asume que los archivos de prueba son pequeños (<5MB). En producción, esto se subiría a un S3/Blob Storage y solo se guardarían las URLs.
+
+4.  **Notificaciones:**
+    - El envío de correos electrónicos es simulado (`console.log`). Se asume que la integración con un proveedor como SendGrid o AWS SES sería trivial de agregar en el servicio `NotificationService`.
