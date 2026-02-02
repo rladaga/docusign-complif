@@ -1,35 +1,13 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { useState, memo } from 'react';
-
-// Lazy load the PDF components to avoid SSR issues with DOMMatrix
-const Document = dynamic(
-  async () => {
-    const { Document } = await import('react-pdf');
-    return Document;
-  },
-  { ssr: false }
-);
-
-const Page = dynamic(
-  async () => {
-    const { Page } = await import('react-pdf');
-    return Page;
-  },
-  { ssr: false }
-);
-
+import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
+import { useState, memo } from 'react';
 
-// Initialize pdfjs worker only on client side
-if (typeof window !== 'undefined') {
-  import('react-pdf').then(({ pdfjs }) => {
-    if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-      pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-    }
-  });
+// Configurar worker
+if (typeof window !== 'undefined' && !pdfjs.GlobalWorkerOptions.workerSrc) {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 }
 
 interface PDFViewerProps {

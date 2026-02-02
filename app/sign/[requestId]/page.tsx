@@ -1,24 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useSignatureStore } from '@/lib/store/signature-store';
 import { useTemplateStore } from '@/lib/store/template-store';
+import { SignatureInterface } from '@/components/signature-flow/SignatureInterface';
 import { DocumentStatus, SignerStatus, SigningOrder } from '@/lib/types';
 import { CheckCircle2, XCircle, Clock, FileSignature } from 'lucide-react';
-
-// Lazy load SignatureInterface to prevent SSR issues with PDF components
-const SignatureInterface = dynamic(
-  () =>
-    import('@/components/signature-flow/SignatureInterface').then((mod) => ({
-      default: mod.SignatureInterface,
-    })),
-  {
-    ssr: false,
-    loading: () => <div className="flex h-screen items-center justify-center">Loading...</div>,
-  }
-);
 
 export default function SignPage() {
   const params = useParams();
