@@ -82,7 +82,7 @@ interface TemplateState {
 // ==============
 
 const defaultSettings: TemplateSettings = {
-  expirationDays: 30,
+  expirationDays: 0,
   reminderFrequency: ReminderFrequency.DAILY,
   signingOrder: SigningOrder.SEQUENTIAL,
   allowDecline: true,

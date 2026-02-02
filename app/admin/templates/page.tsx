@@ -20,6 +20,7 @@ import {
 import { Template } from '@/lib/types';
 // Importamos el modal que creamos en el paso anterior
 import { CreateRequestModal } from '@/components/signature-flow/CreateRequestModal';
+import { PDFDocument } from 'pdf-lib';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -51,9 +52,14 @@ export default function TemplatesPage() {
     null
   );
 
-  const handleCreateTemplate = (name: string, pdfUrl: string, pdfFileName: string) => {
+  const handleCreateTemplate = (
+    name: string,
+    pdfUrl: string,
+    pdfFileName: string,
+    totalPages: number
+  ) => {
     if (selectedAccountId) {
-      createTemplate(selectedAccountId, name, pdfUrl, pdfFileName, 1);
+      createTemplate(selectedAccountId, name, pdfUrl, pdfFileName, totalPages);
       setShowCreateModal(false);
     }
   };
@@ -349,7 +355,7 @@ function CreateTemplateModal({
   onCreate,
 }: {
   onClose: () => void;
-  onCreate: (name: string, pdfUrl: string, pdfFileName: string) => void;
+  onCreate: (name: string, pdfUrl: string, pdfFileName: string, totalPages: number) => void;
 }) {
   const [name, setName] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -366,7 +372,11 @@ function CreateTemplateModal({
       // Esto permite que el PDF sobreviva al "localStorage" y funcione en nuevas pestañas
       const pdfBase64 = await fileToBase64(pdfFile);
 
-      onCreate(name, pdfBase64, pdfFile.name);
+      // Calculamos el número real de páginas usando pdf-lib
+      const pdfDoc = await PDFDocument.load(pdfBase64);
+      const totalPages = pdfDoc.getPageCount();
+
+      onCreate(name, pdfBase64, pdfFile.name, totalPages);
     } catch (error) {
       console.error('Error al procesar el PDF', error);
       alert('Error al procesar el archivo. Intenta con uno más liviano.');
