@@ -7,7 +7,6 @@ import { useTemplateStore } from '@/lib/store/template-store';
 import { SignatureInterface } from '@/components/signature-flow/SignatureInterface';
 import { DocumentStatus, SignerStatus, SigningOrder } from '@/lib/types';
 import { CheckCircle2, XCircle, Clock, FileSignature } from 'lucide-react';
-import { CombinatoricsDebug } from '@/components/signature-flow/CombinatoricsDebug';
 
 export default function SignPage() {
   const params = useParams();
@@ -250,8 +249,6 @@ export default function SignPage() {
           window.location.reload();
         }}
       />
-
-      <CombinatoricsDebug request={request} />
     </div>
   );
 }

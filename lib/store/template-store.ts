@@ -185,7 +185,7 @@ export const useTemplateStore = create<TemplateState>()(
             previousVersionId: undefined,
             createdAt: new Date(),
             updatedAt: new Date(),
-            // Deep copy fields and signers
+            // Deep copy
             fields: original.fields.map((f) => ({ ...f, id: nanoid() })),
             signers: original.signers.map((s) => ({ ...s, id: nanoid() })),
           };
@@ -309,12 +309,10 @@ export const useTemplateStore = create<TemplateState>()(
         set((state) => {
           if (!state.currentTemplate) return;
 
-          // Remove signer
           state.currentTemplate.signers = state.currentTemplate.signers.filter(
             (s) => s.id !== signerId
           );
 
-          // Remove fields assigned to this signer
           state.currentTemplate.fields = state.currentTemplate.fields.filter(
             (f) => f.assignedTo !== signerId
           );

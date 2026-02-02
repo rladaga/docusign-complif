@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { DocumentStatus, SignatureRequest, FieldType, SignerStatus } from '@/lib/types'; // Importar FieldType
+import { DocumentStatus, SignatureRequest, FieldType, SignerStatus } from '@/lib/types';
 import { generateSignedPDF, SignatureInfo } from '@/lib/pdf/generator';
 import { useState, useEffect } from 'react';
 
@@ -41,7 +41,7 @@ export default function RequestsPage() {
   useEffect(() => {
     const onFocus = () => {
       useSignatureStore.persist.rehydrate();
-      checkAndSendReminders(); // Verificar recordatorios al volver a la pestaña
+      checkAndSendReminders();
     };
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
@@ -87,7 +87,7 @@ export default function RequestsPage() {
           else if (field.type === FieldType.INITIALS) safeType = 'initials';
           else if (field.type === FieldType.DATE) safeType = 'date';
           else if (field.type === FieldType.CHECKBOX) safeType = 'checkbox';
-          else safeType = 'text'; // Fallback para RADIO y DROPDOWN
+          else safeType = 'text';
         }
 
         return {
@@ -98,7 +98,7 @@ export default function RequestsPage() {
           signatureDataUrl: s.signatureData,
           timestamp: s.timestamp.toString(),
           ip: s.ipAddress,
-          type: safeType, // Usamos el tipo saneado
+          type: safeType,
         };
       });
 
@@ -114,7 +114,7 @@ export default function RequestsPage() {
 
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `${template.name}_Firmado.pdf`;
+      link.download = `${template.name}_firmado.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -241,7 +241,7 @@ export default function RequestsPage() {
                     <span
                       className={`rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(req.status)}`}
                     >
-                      {req.status.replace('_', ' ')}
+                      {req.status.replace('_', ' ')} {/* Evitar problema con IN_PROGRESS */}
                     </span>
                   </div>
                 </div>

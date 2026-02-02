@@ -265,7 +265,7 @@ export default function TemplatesPage() {
           onClose={() => setSelectedTemplateForRequest(null)}
           onSuccess={() => {
             setSelectedTemplateForRequest(null);
-            router.push('/admin/requests'); // Redirige al dashboard al terminar
+            router.push('/admin/requests');
           }}
         />
       )}
@@ -353,7 +353,7 @@ function CreateTemplateModal({
 }) {
   const [name, setName] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false); // Nuevo estado para feedback visual
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -362,7 +362,7 @@ function CreateTemplateModal({
     setIsProcessing(true);
 
     try {
-      // SOLUCIÓN: Convertimos a Base64 en lugar de Blob URL
+      // Convertimos a Base64 en lugar de Blob URL
       // Esto permite que el PDF sobreviva al "localStorage" y funcione en nuevas pestañas
       const pdfBase64 = await fileToBase64(pdfFile);
 

@@ -54,10 +54,54 @@ export const ACCOUNT_RULES: Record<Faculty, Partial<SignatureRule>> = {
     ] as SignatureCombination[],
   },
 
-  // Agregamos fallbacks para las demás facultades para evitar errores
-  [Faculty.APPROVE_LOAN]: { combinations: [] },
-  [Faculty.MODIFY_CONTACT_INFO]: { combinations: [] },
-  [Faculty.OPEN_ACCOUNT]: { combinations: [] },
-  [Faculty.CLOSE_ACCOUNT]: { combinations: [] },
-  [Faculty.MODIFY_LIMITS]: { combinations: [] },
+  [Faculty.APPROVE_LOAN]: {
+    combinations: [
+      {
+        id: 'default-combo',
+        ruleId: 'rule-default',
+        description: 'Firma Simple (1 Director)',
+        requirements: [{ groupId: 'group-a', count: 1 }],
+      },
+    ] as SignatureCombination[],
+  },
+  [Faculty.MODIFY_CONTACT_INFO]: {
+    combinations: [
+      {
+        id: 'default-combo',
+        ruleId: 'rule-default',
+        description: 'Firma Simple (1 Director)',
+        requirements: [{ groupId: 'group-a', count: 1 }],
+      },
+    ] as SignatureCombination[],
+  },
+  [Faculty.OPEN_ACCOUNT]: {
+    combinations: [
+      {
+        id: 'default-combo',
+        ruleId: 'rule-default',
+        description: 'Firma Simple (1 Director)',
+        requirements: [{ groupId: 'group-a', count: 1 }],
+      },
+    ] as SignatureCombination[],
+  },
+  [Faculty.CLOSE_ACCOUNT]: {
+    combinations: [
+      {
+        id: 'default-combo',
+        ruleId: 'rule-default',
+        description: 'Firma Simple (1 Director)',
+        requirements: [{ groupId: 'group-a', count: 1 }],
+      },
+    ] as SignatureCombination[],
+  },
+  [Faculty.MODIFY_LIMITS]: {
+    combinations: [
+      {
+        id: 'default-combo',
+        ruleId: 'rule-default',
+        description: 'Firma Simple (1 Director)',
+        requirements: [{ groupId: 'group-a', count: 1 }],
+      },
+    ] as SignatureCombination[],
+  },
 };

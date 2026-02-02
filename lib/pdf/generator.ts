@@ -41,7 +41,6 @@ export async function generateSignedPDF(options: GeneratePDFOptions): Promise<Ui
     const { width: pageWidth, height: pageHeight } = page.getSize();
     const rotation = page.getRotation().angle;
 
-    // Solo procesar páginas portrait (sin rotación o rotación 0/180)
     if (rotation === 90 || rotation === 270) {
       console.warn(
         `⚠️ Página ${field.position.page} tiene rotación ${rotation}° (landscape). Esta funcionalidad no está soportada actualmente.`
@@ -95,7 +94,7 @@ export async function generateSignedPDF(options: GeneratePDFOptions): Promise<Ui
     }
   }
 
-  // 4. Agregar Audit Trail (Hoja de Certificado)
+  // Agregar Audit Trail (Hoja de Certificado)
   if (includeAuditTrail && signatures.length > 0) {
     const auditPage = pdfDoc.addPage();
     const { width, height } = auditPage.getSize();
@@ -166,7 +165,7 @@ export async function generateSignedPDF(options: GeneratePDFOptions): Promise<Ui
     });
   }
 
-  // 5. Guardar y retornar bytes
+  // Guardar y retornar bytes
   return await pdfDoc.save();
 }
 

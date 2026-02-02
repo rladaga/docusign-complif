@@ -168,7 +168,6 @@ export const useSchemaStore = create<SchemaState>()(
 
       createSigner: (name, email, groupIds) => {
         set((state) => {
-          // Buscamos el schema activo para saber a qué cuenta asociar, o fallback a account-1
           const activeSchema = state.schemas.find((s) => s.id === state.activeSchemaId);
           state.signers.push({
             id: nanoid(),

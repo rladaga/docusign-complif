@@ -17,10 +17,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-1 space-y-1 px-3">
-          <NavLink href="/admin/templates" icon={FileText} label="Templates" />
+          <NavLink href="/admin/templates" icon={FileText} label="Plantillas" />
           <NavLink href="/admin/requests" icon={FileSignature} label="Solicitudes de Firma" />
           <NavLink href="/admin/accounts" icon={Building2} label="Cuentas" />
-          <NavLink href="/admin/schemas" icon={Settings} label="Schemas" />
+          <NavLink href="/admin/schemas" icon={Settings} label="Configuración de Reglas" />
         </nav>
 
         <div className="border-t p-4">

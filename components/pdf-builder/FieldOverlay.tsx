@@ -25,7 +25,6 @@ export function FieldOverlay({
   scale = 1.5,
   readOnly = false,
 }: FieldOverlayProps) {
-  // Configuración de sensores (clic vs arrastre)
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -35,7 +34,6 @@ export function FieldOverlay({
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
-    // Seguridad extra: si es readOnly, no hacemos nada
     if (readOnly) return;
 
     const { active, delta } = event;

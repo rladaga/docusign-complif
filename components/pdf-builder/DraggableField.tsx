@@ -27,8 +27,6 @@ const FIELD_COLORS: Record<FieldType, string> = {
   [FieldType.DATE]: 'border-amber-500 bg-amber-500/10',
   [FieldType.CHECKBOX]: 'border-purple-500 bg-purple-500/10',
   [FieldType.INITIALS]: 'border-pink-500 bg-pink-500/10',
-  [FieldType.RADIO]: 'border-blue-500 bg-blue-500/10',
-  [FieldType.DROPDOWN]: 'border-gray-500 bg-gray-500/10',
 };
 
 const FIELD_LABELS: Record<FieldType, string> = {
@@ -37,8 +35,6 @@ const FIELD_LABELS: Record<FieldType, string> = {
   [FieldType.DATE]: 'Fecha',
   [FieldType.CHECKBOX]: 'Checkbox',
   [FieldType.INITIALS]: 'Iniciales',
-  [FieldType.RADIO]: 'Radio',
-  [FieldType.DROPDOWN]: 'Dropdown',
 };
 
 export function DraggableField({
@@ -124,7 +120,7 @@ export function DraggableField({
   const isUnassigned = !assignedTo || assignedTo === '';
 
   const borderClass = readOnly
-    ? 'border-dashed border-indigo-300 bg-indigo-50/30' // Estilo sutil en preview
+    ? 'border-dashed border-indigo-300 bg-indigo-50/30'
     : `${isUnassigned ? 'border-gray-400 bg-gray-200 opacity-80' : FIELD_COLORS[type]}`;
 
   const cursorClass = readOnly
@@ -153,7 +149,6 @@ export function DraggableField({
 
         <div className="flex flex-col overflow-hidden text-black">
           <span className="truncate">{FIELD_LABELS[type]}</span>
-          {/* Mostrar estado solo si no es preview o si queremos debug */}
           {!readOnly &&
             (isUnassigned ? (
               <span className="truncate rounded border border-red-200 bg-white/80 px-1 text-[9px] font-bold text-red-500">

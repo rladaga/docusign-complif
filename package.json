@@ -9,8 +9,7 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

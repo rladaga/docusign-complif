@@ -69,8 +69,6 @@ interface SignatureState {
   signField: (requestId: string, signerId: string, fieldId: string, signatureData: string) => void;
   completeSignerSignature: (requestId: string, signerId: string) => void;
   declineRequest: (requestId: string, signerId: string, reason: string) => void;
-
-  // Actions - Status
   sendForSignature: (requestId: string) => void;
 
   // Actions - Combinations
@@ -255,7 +253,7 @@ export const useSignatureStore = create<SignatureState>()(
           signer.status = SignerStatus.COMPLETED;
           signer.signedAt = new Date();
 
-          // [NUEVO] Si es secuencial, invitar a los siguientes en la cadena
+          // Si es secuencial, invitar a los siguientes en la cadena
           if (request.settings?.signingOrder === 'sequential') {
             const currentOrder = signer.order;
             const sameOrderSigners = request.signers.filter((s) => s.order === currentOrder);
@@ -271,29 +269,29 @@ export const useSignatureStore = create<SignatureState>()(
             }
           }
 
-          console.log(`🔍 Firmante ${signer.name} marcado como COMPLETED`);
+          console.log(`Firmante ${signer.name} marcado como COMPLETED`);
           console.log(
-            `🔍 Firmantes actuales:`,
+            `Firmantes actuales:`,
             request.signers.map((s) => ({
               name: s.name,
               group: s.groupId,
               status: s.status,
             }))
           );
-          console.log(`🔍 Combinaciones válidas:`, request.validCombinations);
+          console.log(`Combinaciones válidas:`, request.validCombinations);
 
-          // VALIDACIÓN CRÍTICA: Verificar combinatorias
+          // Verificar combinatorias
           const result = isRequestComplete(request.validCombinations, request.signers);
 
-          console.log(`🔍 Resultado de validación:`, result);
+          console.log(`Resultado de validación:`, result);
 
           if (result.isComplete && result.matchedCombination) {
-            // ✅ Se satisfizo una combinación válida
+            // Se satisfizo una combinación válida
             request.status = DocumentStatus.COMPLETED;
             request.completedCombination = result.matchedCombination;
             request.completedAt = new Date();
 
-            console.log(`✅ Request ${requestId} COMPLETADO por combinatoria:`, result.message);
+            console.log(`Request ${requestId} COMPLETADO por combinatoria:`, result.message);
           } else {
             // No se completó ninguna combinación todavía
             request.status = DocumentStatus.IN_PROGRESS;
@@ -302,7 +300,7 @@ export const useSignatureStore = create<SignatureState>()(
               (s) => s.status === SignerStatus.COMPLETED
             ).length;
             console.log(
-              `⏳ Request ${requestId} en progreso: ${completedCount}/${request.signers.length} firmantes completados`
+              `Request ${requestId} en progreso: ${completedCount}/${request.signers.length} firmantes completados`
             );
           }
         });
@@ -339,7 +337,7 @@ export const useSignatureStore = create<SignatureState>()(
 
           request.status = DocumentStatus.PENDING;
 
-          // [NUEVO] Enviar invitaciones iniciales
+          // Enviar invitaciones iniciales
           const isSequential = request.settings?.signingOrder === 'sequential';
           const firstOrder = Math.min(...request.signers.map((s) => s.order));
 
@@ -349,7 +347,7 @@ export const useSignatureStore = create<SignatureState>()(
             }
           });
 
-          console.log(`Sending signature request to ${request.signers.length} signers`);
+          console.log(`Enviando solicitud de firma a ${request.signers.length} firmantes`);
         });
       },
 
@@ -362,7 +360,6 @@ export const useSignatureStore = create<SignatureState>()(
           const request = state.requests.find((r) => r.id === requestId);
           if (!request) return;
 
-          // Calculate which combinations are valid given the assigned signers
           const validCombinations = calculateValidCombinations(
             {
               ...rule,
@@ -377,7 +374,7 @@ export const useSignatureStore = create<SignatureState>()(
           request.validCombinations = validCombinations;
 
           console.log(
-            `Calculated ${validCombinations.length} valid combination(s) for request ${requestId}`
+            `Calculadas ${validCombinations.length} combinaciones válidas para la solicitud ${requestId}`
           );
         });
       },
@@ -395,7 +392,7 @@ export const useSignatureStore = create<SignatureState>()(
             request.completedCombination = result.matchedCombination;
             request.completedAt = new Date();
 
-            console.log(`Request ${requestId} completed!`, result.message);
+            console.log(`Solicitud ${requestId} completada!`, result.message);
           } else {
             // Update remaining combinations
             const completedSigners = request.signers.filter(
@@ -409,8 +406,7 @@ export const useSignatureStore = create<SignatureState>()(
             );
 
             if (remaining.length === 0 && request.status === DocumentStatus.IN_PROGRESS) {
-              // No remaining combinations possible - request can't be completed
-              console.warn(`Request ${requestId} has no remaining valid combinations`);
+              console.warn(`Solicitud ${requestId} no tiene combinaciones válidas restantes`);
             }
           }
         });

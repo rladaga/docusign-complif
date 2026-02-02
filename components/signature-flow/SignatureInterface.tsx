@@ -51,7 +51,7 @@ export function SignatureInterface({
   const [modalType, setModalType] = useState<'signature' | 'initials'>('signature');
   const [showDeclineModal, setShowDeclineModal] = useState(false);
 
-  // [NUEVO] Estado para paginación
+  // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [numPages, setNumPages] = useState(0);
 
@@ -60,7 +60,7 @@ export function SignatureInterface({
   // Filtrar campos de este usuario (GLOBALES del documento)
   const myFields = template.fields.filter((f) => signer.assignedFields.includes(f.id));
 
-  // [NUEVO] Filtrar campos VISIBLES (Solo los de la página actual)
+  // Filtrar campos VISIBLES (Solo los de la página actual)
   const visibleFields = myFields.filter((f) => f.position.page === currentPage);
 
   // --- VALIDACIONES DE FLUJO (Parte 1) ---

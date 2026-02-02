@@ -1,5 +1,5 @@
 /**
- * Schema Types - Parte 0 del challenge
+ * Schema Types
  *
  * Este módulo define el sistema de schemas de firma que permite configurar
  * reglas complejas de aprobación basadas en grupos y facultades.
@@ -211,10 +211,10 @@ export interface SignatureRequest {
  * Estados de un firmante individual
  */
 export enum SignerStatus {
-  PENDING = 'PENDING', // No ha firmado aún
-  IN_PROGRESS = 'IN_PROGRESS', // Abrió el documento pero no terminó
-  COMPLETED = 'COMPLETED', // Firmó todos sus campos
-  DECLINED = 'DECLINED', // Rechazó firmar
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  DECLINED = 'DECLINED',
 }
 
 /**

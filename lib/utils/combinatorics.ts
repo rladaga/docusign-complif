@@ -1,7 +1,7 @@
 /**
  * Motor de validación de combinaciones
  *
- * Este módulo es el cerebro del sistema de firma multi-nivel.
+ *
  * Determina:
  * - Qué combinaciones son válidas dada una lista de firmantes
  * - Si un documento está completo

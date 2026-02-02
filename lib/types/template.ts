@@ -1,5 +1,5 @@
 /**
- * Template Types - Parte 1 del challenge
+ * Template Types
  *
  * Define la estructura de templates de documentos PDF con campos configurables.
  * Un template es la definición de un formulario que después se usa para crear
@@ -54,8 +54,6 @@ export enum FieldType {
   TEXT = 'text', // Texto libre
   DATE = 'date', // Fecha
   CHECKBOX = 'checkbox', // Checkbox
-  RADIO = 'radio', // Radio button (nuevo)
-  DROPDOWN = 'dropdown', // Select/dropdown (nuevo)
 }
 
 /**

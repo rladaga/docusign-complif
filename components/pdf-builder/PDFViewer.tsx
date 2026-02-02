@@ -5,7 +5,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { useState, memo } from 'react';
 
-// Configurar worker (Importante para rendimiento)
+// Configurar worker
 if (typeof window !== 'undefined' && !pdfjs.GlobalWorkerOptions.workerSrc) {
   pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 }

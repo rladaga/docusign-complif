@@ -6,17 +6,11 @@ import { useSchemaStore } from '@/lib/store/schema-store';
 import { useSignatureStore } from '@/lib/store/signature-store';
 import { Faculty } from '@/lib/types';
 
-// Mock dependencies
-vi.mock('@/lib/utils/combinatorics', () => ({
-  calculateValidCombinations: () => [{ id: 'c1', requirements: [] }], // Always valid
-}));
-
 describe('CreateRequestModal', () => {
   const mockOnClose = vi.fn();
   const mockOnSuccess = vi.fn();
 
   beforeEach(() => {
-    // Setup Stores
     useTemplateStore.getState().reset();
     useTemplateStore.getState().createTemplate('acc-1', 'Test Template', 'url', 'file.pdf', 1);
     useTemplateStore.getState().addSigner('Signer 1');
@@ -29,13 +23,20 @@ describe('CreateRequestModal', () => {
           id: 's1',
           accountId: 'acc-1',
           name: 'S1',
-          groups: [],
+          groups: [{ id: 'g1', name: 'Group A', schemaId: 's1', createdAt: new Date() }],
           rules: [
             {
               id: 'r1',
               schemaId: 's1',
               faculty: Faculty.APPROVE_WIRE,
-              combinations: [],
+              combinations: [
+                {
+                  id: 'c1',
+                  ruleId: 'r1',
+                  requirements: [{ groupId: 'g1', count: 1 }],
+                  description: '1 from Group A',
+                },
+              ],
               createdAt: new Date(),
             },
           ],
@@ -74,12 +75,17 @@ describe('CreateRequestModal', () => {
     const emailInputs = screen.getAllByPlaceholderText('email@ejemplo.com');
     fireEvent.change(emailInputs[0], { target: { value: 'john@example.com' } });
 
+    // Select Group (Required for real combinatorics check)
+    const groupOption = screen.getByText('Group A');
+    const groupSelect = groupOption.closest('select');
+    if (groupSelect) {
+      fireEvent.change(groupSelect, { target: { value: 'g1' } });
+    }
+
     // Submit
     const submitBtn = screen.getByText('Crear Solicitud');
     fireEvent.click(submitBtn);
 
-    // Since we mocked combinatorics to return valid, it should proceed
-    // Note: In a real integration test we'd check if createRequest was called
-    // Here we mainly check if it doesn't crash and attempts to submit
+    expect(mockOnSuccess).toHaveBeenCalled();
   });
 });

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Outfit, Inter } from 'next/font/google';
+import { Geist, Geist_Mono, Outfit } from 'next/font/google';
 import './globals.css';
-import { Providers } from './providers';
 
 if (typeof window !== 'undefined') {
   import('@/lib/pdf/config').then(({ setupPDFJS }) => {
@@ -45,7 +44,7 @@ export default function RootLayout({
       <body
         className={`${customFont.variable} ${geistSans.variable} ${geistMono.variable}antialiased`}
       >
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );

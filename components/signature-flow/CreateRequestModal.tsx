@@ -67,7 +67,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Obtener reglas dinámicas (Parte 0)
+    // Obtener reglas dinámicas (Parte 0)
     const selectedRule = getRuleByFaculty(faculty) || getRuleByFaculty(Faculty.CREATE_WIRE);
 
     if (!selectedRule || !selectedRule.combinations) {
@@ -75,7 +75,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       return;
     }
 
-    // 2. PRE-VALIDACIÓN: Verificar que las combinaciones sean posibles ANTES de crear
+    // Verificar que las combinaciones sean posibles ANTES de crear
     const tempSigners = template.signers
       .map((role) => {
         const data = signerData[role.id];
@@ -107,7 +107,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       tempSigners
     );
 
-    // VALIDACIÓN CRÍTICA: Si no hay combinaciones posibles, no permitir crear
+    // Si no hay combinaciones posibles, no permitir crear
     if (validCombinations.length === 0) {
       const combosText = selectedRule.combinations
         .map((c, i) => {
@@ -131,7 +131,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       return;
     }
 
-    // 3. Crear la Request (Nace como DRAFT)
+    // Crear la Request (Nace como DRAFT)
     const requestId = createRequest(
       template.id,
       'account-1',
@@ -143,7 +143,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     // Set para evitar duplicados si se asigna la misma persona nueva a múltiples roles en la misma request
     const processedNewEmails = new Set<string>();
 
-    // 4. Asignar firmantes
+    // Asignar firmantes
     template.signers.forEach((role) => {
       const data = signerData[role.id];
       if (data) {
@@ -172,12 +172,12 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       }
     });
 
-    // 5. Inicializar motor de combinatoria
+    // Inicializar motor de combinatoria
     calculateCombinations(requestId, {
       combinations: selectedRule.combinations as SignatureCombination[],
     });
 
-    // 6. Enviar la solicitud (Cambia DRAFT -> PENDING)
+    // Enviar la solicitud (Cambia DRAFT -> PENDING)
     sendForSignature(requestId);
 
     onSuccess();

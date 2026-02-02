@@ -8,11 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     globals: true,
-    include: ['tests/**/*.{test,spec}.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'], // Changed this
+    include: ['tests/**/*.{test,spec}.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      // @ts-expect-error - all option exists but types are incorrect
-      all: true,
       reporter: ['text', 'json', 'html'],
       include: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
       exclude: [
@@ -21,7 +19,6 @@ export default defineConfig({
         '**/*.d.ts',
         'lib/mocks/**',
         'app/layout.tsx',
-        'app/providers.tsx',
       ],
     },
   },

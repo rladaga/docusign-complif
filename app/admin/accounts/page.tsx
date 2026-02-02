@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, SyntheticEvent } from 'react';
 import { useSchemaStore } from '@/lib/store/schema-store';
 import { X } from 'lucide-react';
 
@@ -21,7 +21,7 @@ export default function AccountsPage() {
   const [newGroup, setNewGroup] = useState({ name: '', description: '' });
   const [newSigner, setNewSigner] = useState({ name: '', email: '', groupId: '' });
 
-  const handleCreateGroup = (e: React.FormEvent) => {
+  const handleCreateGroup = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newGroup.name) {
       createGroup(newGroup.name, newGroup.description);
@@ -30,7 +30,7 @@ export default function AccountsPage() {
     }
   };
 
-  const handleCreateSigner = (e: React.FormEvent) => {
+  const handleCreateSigner = (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newSigner.name && newSigner.email && newSigner.groupId) {
       createSigner(newSigner.name, newSigner.email, [newSigner.groupId]);
@@ -53,7 +53,7 @@ export default function AccountsPage() {
                 key={account.id}
                 onClick={() => {
                   setSelectedAccount(account.id);
-                  // Si hay un esquema activo para esta cuenta, lo seleccionamos en el store
+
                   const schema = schemas.find((s) => s.accountId === account.id && s.isActive);
                   if (schema) setActiveSchemaId(schema.id);
                 }}

@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { useTemplateStore } from '@/lib/store/template-store';
-import { PDFViewer, FieldOverlay, FieldToolbar } from '@/components/pdf-builder';
+import {
+  PDFViewer,
+  FieldOverlay,
+  FieldToolbar,
+  SignerPanel,
+  FieldProperties,
+} from '@/components/pdf-builder';
 import { FieldType } from '@/lib/types/template';
 import { Save, ArrowLeft, EyeOff, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { SignerPanel } from '@/components/pdf-builder/SignerPanel';
-import { FieldProperties } from '@/components/pdf-builder/FieldProperties';
 
 export default function BuilderPage() {
   const router = useRouter();
