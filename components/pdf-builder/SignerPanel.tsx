@@ -7,12 +7,15 @@ import { useState } from 'react';
 
 export function SignerPanel() {
   const { currentTemplate, addSigner, deleteSigner, updateSigner } = useTemplateStore();
-  const { schemas, activeSchemaId } = useSchemaStore();
+  const { schemas } = useSchemaStore();
 
   if (!currentTemplate) return null;
 
-  // Obtener grupos del schema activo para sugerirlos como roles
-  const activeSchema = schemas.find((s) => s.id === activeSchemaId);
+  // Obtener grupos del schema asociado a la cuenta del template
+  const activeSchema =
+    schemas.find((s) => s.accountId === currentTemplate.accountId && s.isActive) ||
+    schemas.find((s) => s.accountId === currentTemplate.accountId);
+
   const availableGroups = activeSchema?.groups || [];
 
   const [isAdding, setIsAdding] = useState(false);
