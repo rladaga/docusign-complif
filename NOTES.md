@@ -59,7 +59,7 @@
 
     Acciones: createRequest, loadRequest, addSigner, updateSigner, removeSigner, signField, sendForSignature, calculateCombinations, etc.
 
-- _lib/store/template-store.ts_: Store de Zustand para manejar el estado de los templates, template activo en el builder, CRUD de los templates y versionado. Acciones: createTemplate, loadTemplate, saveTemplate, duplicateTemplate, createNewVersion, deleteTemplate. Tambien se evaluan acciones sobre campos y firmantes dentro del template.
+- _lib/store/template-store.ts_: Store de Zustand para manejar el estado de los templates, template activo en el builder, CRUD de los templates llamando a la API a traves del TemplateService. Acciones: createTemplate, loadTemplate, saveTemplate, duplicateTemplate, createNewVersion, deleteTemplate. Tambien se evaluan acciones sobre campos y firmantes dentro del template.
 
 - _lib/types/schema.ts_: Este módulo define el sistema de schemas de firma que permite configurar reglas complejas de aprobación basadas en grupos y facultades.
 
@@ -67,7 +67,9 @@
 
 - _lib/utils/combinatorics.ts_: Motor de validacion de combinaciones. Define qué combinaciones son válidas dada una lista de firmantes, si un documento está completo, qué combinaciones todavía son posibles y el progreso de cada combinación.
 
-- _lib/mocks/mock-db.ts_: Simula una base de datos en memoria para almacenar datos de cuentas, usuarios, templates, schemas y solicitudes de firma. Permite realizar operaciones CRUD básicas para pruebas y desarrollo sin necesidad de una base de datos real. Se usa para probar la API de CRUD de templates en _admin/api/templates/_
+- _lib/mocks/mock-db.ts_: Simula una base de datos en memoria para almacenar datos de templates. Permite realizar operaciones CRUD básicas para pruebas y desarrollo sin necesidad de una base de datos real. Se usa para probar la API de CRUD de templates en _admin/api/templates/_
+
+- _lib/services/template-service.ts_: Capa de servicio que encapsula las llamadas a la API de CRUD de templates. Proporciona métodos para crear, leer, actualizar, eliminar, duplicar y versionar templates. Se usa en el store de templates para interactuar con la API sin exponer detalles de implementación.
 
 ## Decisiones Técnicas y Suposiciones
 
@@ -90,9 +92,10 @@
     - **Decisión:** En lugar de hardcodear reglas ("si es manager, entonces..."), se construyó un motor genérico en `lib/utils/combinatorics.ts`.
     - **Funcionamiento:** Evalúa reglas basadas en "Facultades" y "Combinaciones" (ej: 2 del Grupo A **O** 1 del Grupo A + 1 del Grupo B). Esto hace que el sistema sea escalable y configurable desde el UI sin tocar código.
 
-5.  **API Mockeada:**
+5.  **API y Capa de Servicio:**
     - **Decisión:** Para cumplir con el requerimiento de "API para CRUD", se implementaron Route Handlers en Next.js (`app/api/...`) respaldados por una base de datos en memoria (`lib/mocks/mock-db.ts`).
-    - **Beneficio:** Permite probar el comportamiento de una API REST real (códigos de estado HTTP, métodos GET/POST/DELETE) sin la complejidad de configurar un backend real.
+    - **Capa de Servicio:** Se creó `lib/services/template-service.ts` como una capa de abstracción que encapsula las llamadas `fetch` a la API.
+    - **Integración con Zustand:** El store (`template-store.ts`) no interactúa directamente con la API. En su lugar, invoca a los métodos del `TemplateService` para realizar operaciones CRUD y luego actualiza su estado interno, manteniendo una clara separación de responsabilidades.
 
 ### Suposiciones (Assumptions)
 

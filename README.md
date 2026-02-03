@@ -8,7 +8,7 @@ Plataforma de gestión de firmas electrónicas y flujos de aprobación complejos
 - **Motor de Reglas de Aprobación:** Sistema avanzado de combinatoria para definir reglas complejas (ej: "Requiere 2 Directores O 1 Director + 1 Gerente").
 - **Gestión de Cuentas y Grupos:** Administración de jerarquías de firmantes y facultades por cuenta.
 - **Flujo de Firma:** Interfaz para que los usuarios firmen documentos, con validación de orden secuencial o paralelo.
-- **API RESTful (Mock):** Endpoints simulados para operaciones CRUD de templates.
+- **API:** Endpoints para operaciones CRUD de templates.
 - **Persistencia Local:** Uso de `localStorage` y `Zustand` para mantener el estado de la aplicación sin necesidad de una base de datos externa para esta demo.
 
 ## 📋 Requisitos Previos
@@ -82,6 +82,7 @@ Un resumen de los directorios más importantes:
 - **`lib/`**: Lógica de negocio y utilidades.
   - `store/`: Gestión de estado global con Zustand (`template-store`, `signature-store`, `schema-store`).
   - `pdf/`: Configuración de PDF.js y utilidades de coordenadas.
+  - `services/`: Servicio para enviar email (mock) y servicio para interacturar con la API de CRUD de templates.
   - `utils/combinatorics.ts`: Motor lógico para validar reglas de aprobación.
   - `mocks/`: Datos de prueba y base de datos en memoria.
 - **`tests/`**: Archivos de test organizados por tipo.
