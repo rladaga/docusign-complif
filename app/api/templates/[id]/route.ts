@@ -22,10 +22,24 @@ export async function PUT(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await request.json();
+
     const updated = db.update(id, body);
 
+    // Upsert para poder trabajar con Zustand y la api y mock-db sin problemas
     if (!updated) {
-      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+      console.log(`Recuperando template perdido: ${id}`);
+
+      const recoveredTemplate = {
+        ...body,
+        id: id,
+        updatedAt: new Date(),
+        createdAt: body.createdAt || new Date(),
+        version: body.version || 1,
+      };
+
+      db.create(recoveredTemplate);
+
+      return NextResponse.json(recoveredTemplate);
     }
 
     return NextResponse.json(updated);

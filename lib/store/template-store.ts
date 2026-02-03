@@ -22,6 +22,7 @@ import {
   SigningOrder,
   FieldPosition,
 } from '@/lib/types';
+import { TemplateService } from '../services/template-service';
 
 // ================
 // STATE INTERFACE
@@ -38,6 +39,7 @@ interface TemplateState {
   zoom: number;
   isDragging: boolean;
   showGrid: boolean;
+  isLoading: boolean;
 
   // Actions - Templates
   createTemplate: (
@@ -46,12 +48,13 @@ interface TemplateState {
     pdfUrl: string,
     pdfFileName: string,
     totalPages: number
-  ) => void;
+  ) => Promise<void>;
   loadTemplate: (templateId: string) => void;
   saveTemplate: () => void;
   deleteTemplate: (templateId: string) => void;
   duplicateTemplate: (templateId: string) => void;
   createNewVersion: (templateId: string, changeDescription: string) => void;
+  fetchAllTemplates: () => Promise<void>;
 
   // Actions - Fields
   addField: (type: FieldType, position: FieldPosition, assignedTo: string) => void;
@@ -107,36 +110,45 @@ export const useTemplateStore = create<TemplateState>()(
       zoom: 1,
       isDragging: false,
       showGrid: false,
+      isLoading: false,
 
       // =================
       // TEMPLATE ACTIONS
       // =================
 
-      createTemplate: (accountId, name, pdfUrl, pdfFileName, totalPages) => {
-        set((state) => {
-          const newTemplate: Template = {
-            id: nanoid(),
+      createTemplate: async (accountId, name, pdfUrl, pdfFileName, totalPages) => {
+        set({ isLoading: true });
+        try {
+          const newTemplate = await TemplateService.create({
             accountId,
             name,
-            description: '',
-            version: 1,
             pdfUrl,
             pdfFileName,
             totalPages,
-            fields: [],
-            signers: [],
-            settings: { ...defaultSettings },
-            createdBy: 'current-user',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            isArchived: false,
-          };
+          });
 
-          state.templates.push(newTemplate);
-          state.currentTemplate = newTemplate;
-          state.currentPage = 1;
-          state.selectedFieldId = null;
-        });
+          set((state) => {
+            state.templates.push(newTemplate);
+            state.currentTemplate = newTemplate;
+            state.currentPage = 1;
+            state.selectedFieldId = null;
+            state.isLoading = false;
+          });
+        } catch (error) {
+          console.error('Error creating template', error);
+          set({ isLoading: false });
+        }
+      },
+
+      fetchAllTemplates: async () => {
+        set({ isLoading: true });
+        try {
+          const templates = await TemplateService.getAll();
+          set({ templates, isLoading: false });
+        } catch (error) {
+          console.error(error);
+          set({ isLoading: false });
+        }
       },
 
       loadTemplate: (templateId) => {
@@ -150,26 +162,49 @@ export const useTemplateStore = create<TemplateState>()(
         });
       },
 
-      saveTemplate: () => {
-        set((state) => {
-          if (!state.currentTemplate) return;
+      saveTemplate: async () => {
+        const current = get().currentTemplate;
+        if (!current) return;
 
-          const index = state.templates.findIndex((t) => t.id === state.currentTemplate!.id);
+        set({ isLoading: true });
+        try {
+          // Enviamos los cambios a la API
+          const updatedTemplate = await TemplateService.update(current.id, current);
 
-          if (index !== -1) {
-            state.currentTemplate.updatedAt = new Date();
-            state.templates[index] = state.currentTemplate;
-          }
-        });
+          // Actualizamos el estado local con la respuesta confirmada
+          set((state) => {
+            const index = state.templates.findIndex((t) => t.id === updatedTemplate.id);
+            if (index !== -1) {
+              state.templates[index] = updatedTemplate;
+            }
+            // actualizamos también el current para tener el 'updatedAt' fresco
+            state.currentTemplate = updatedTemplate;
+            state.isLoading = false;
+          });
+        } catch (error) {
+          console.error('Error saving template', error);
+          set({ isLoading: false });
+        }
       },
 
-      deleteTemplate: (templateId) => {
-        set((state) => {
-          state.templates = state.templates.filter((t) => t.id !== templateId);
-          if (state.currentTemplate?.id === templateId) {
-            state.currentTemplate = null;
-          }
-        });
+      deleteTemplate: async (templateId) => {
+        set({ isLoading: true });
+        try {
+          // Borramos en servidor
+          await TemplateService.delete(templateId);
+
+          // Limpiamos en cliente
+          set((state) => {
+            state.templates = state.templates.filter((t) => t.id !== templateId);
+            if (state.currentTemplate?.id === templateId) {
+              state.currentTemplate = null;
+            }
+            state.isLoading = false;
+          });
+        } catch (error) {
+          console.error('Error deleting template', error);
+          set({ isLoading: false });
+        }
       },
 
       duplicateTemplate: (templateId) => {

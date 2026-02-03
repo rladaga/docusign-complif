@@ -24,10 +24,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Construimos el objeto Template completo con valores por defecto
     const newTemplate: Template = {
       ...body,
-      id: body.id || nanoid(),
+      id: nanoid(),
       createdAt: new Date(),
       updatedAt: new Date(),
       version: 1,
