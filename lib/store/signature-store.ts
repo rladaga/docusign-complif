@@ -101,14 +101,17 @@ export const useSignatureStore = create<SignatureState>()(
         templateId,
         accountId,
         faculty,
-        expirationDays = 30,
+        expirationDays,
         signingOrder = 'sequential'
       ) => {
         const requestId = nanoid();
 
         set((state) => {
-          const expiresAt = new Date();
-          expiresAt.setDate(expiresAt.getDate() + expirationDays);
+          let expiresAt: Date | undefined;
+          if (expirationDays && expirationDays > 0) {
+            expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + expirationDays);
+          }
 
           const newRequest: SignatureRequest = {
             id: requestId,
@@ -121,7 +124,7 @@ export const useSignatureStore = create<SignatureState>()(
             signatures: [],
             createdBy: 'current-user',
             createdAt: new Date(),
-            expiresAt: expirationDays > 0 ? expiresAt : undefined,
+            expiresAt,
             settings: {
               expirationDays,
               signingOrder,

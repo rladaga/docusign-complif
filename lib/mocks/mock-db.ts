@@ -11,69 +11,7 @@ import { Template, FieldType, SigningOrder, ReminderFrequency } from '@/lib/type
 class MockDatabase {
   private templates: Template[] = [];
 
-  constructor() {
-    this.templates = [
-      {
-        id: 'template-nda',
-        accountId: 'account-1',
-        name: 'Acuerdo de Confidencialidad (NDA)',
-        description: 'Plantilla estándar para empleados y contratistas.',
-        version: 1,
-        pdfUrl:
-          'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/web/compressed.tracemonkey-pldi-09.pdf', // PDF de ejemplo público
-        pdfFileName: 'nda-v1.pdf',
-        totalPages: 14,
-        fields: [
-          {
-            id: 'f1',
-            type: FieldType.SIGNATURE,
-            position: { page: 1, x: 100, y: 150, width: 200, height: 60 },
-            assignedTo: 'role-employee',
-            required: true,
-            createdAt: new Date(),
-            order: 1,
-          },
-          {
-            id: 'f2',
-            type: FieldType.DATE,
-            position: { page: 1, x: 350, y: 150, width: 150, height: 40 },
-            assignedTo: 'role-employee',
-            required: true,
-            createdAt: new Date(),
-            order: 2,
-          },
-        ],
-        signers: [
-          {
-            id: 'role-employee',
-            name: 'Empleado',
-            order: 1,
-            color: '#3B82F6',
-          },
-          {
-            id: 'role-hr',
-            name: 'RRHH',
-            order: 2,
-            color: '#EF4444',
-          },
-        ],
-        settings: {
-          expirationDays: 7,
-          reminderFrequency: ReminderFrequency.DAILY,
-          signingOrder: SigningOrder.SEQUENTIAL,
-          allowDecline: true,
-          requireAllFields: true,
-          notifyOnComplete: true,
-          notifyOnDecline: true,
-          requireAccessCode: false,
-        },
-        createdBy: 'system',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isArchived: false,
-      },
-    ];
-  }
+  constructor() {}
 
   getAll(): Template[] {
     return this.templates;

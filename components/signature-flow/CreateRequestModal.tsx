@@ -52,9 +52,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       {} as Record<string, number>
     )
   );
-  const [expirationDays, setExpirationDays] = useState<number>(
-    template.settings?.expirationDays || 30
-  );
+  const [expirationDays, setExpirationDays] = useState<number>(template.settings?.expirationDays);
 
   const handleInputChange = (roleId: string, field: string, value: string) => {
     setSignerData((prev) => ({
@@ -265,9 +263,9 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
                 <Clock className="h-4 w-4 text-gray-400" />
                 <input
                   type="number"
-                  min="1"
+                  min="0"
                   value={expirationDays}
-                  onChange={(e) => setExpirationDays(parseInt(e.target.value) || 1)}
+                  onChange={(e) => setExpirationDays(parseInt(e.target.value))}
                   className="w-full text-sm outline-none"
                 />
               </div>

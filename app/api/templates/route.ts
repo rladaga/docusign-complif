@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       fields: body.fields || [],
       signers: body.signers || [],
       settings: body.settings || {
-        expirationDays: 30,
+        expirationDays: 0,
         reminderFrequency: 'daily',
         signingOrder: 'sequential',
         allowDecline: true,
