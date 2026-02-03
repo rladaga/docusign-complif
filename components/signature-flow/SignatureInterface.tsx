@@ -51,6 +51,8 @@ export function SignatureInterface({
   const [modalType, setModalType] = useState<'signature' | 'initials'>('signature');
   const [showDeclineModal, setShowDeclineModal] = useState(false);
 
+  const SCALE = 1.5;
+
   // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [numPages, setNumPages] = useState(0);
@@ -292,13 +294,13 @@ export function SignatureInterface({
         )}
       </div>
 
-      <div className="relative mt-8 bg-white shadow-2xl">
+      <div className="relative mt-8 flex h-fit w-full max-w-4xl flex-col bg-white shadow-2xl">
         <PDFViewer
           fileUrl={template.pdfUrl}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           onLoadSuccess={(p) => setNumPages(p)}
-          scale={1.5}
+          scale={SCALE}
         />
 
         {/* Overlay de campos (SOLO LOS DE ESTA PÁGINA) */}

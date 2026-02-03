@@ -79,6 +79,7 @@ Resuelve la discrepancia entre el sistema de coordenadas del navegador y el de l
 - **PDF:** Origen (0,0) en esquina inferior izquierda. Unidades en Puntos (pt).
 - **Pantalla:** Origen (0,0) en esquina superior izquierda. Unidades en Píxeles (px).
 - **Funciones:** `screenToPDF` y `pdfToScreen` manejan la conversión y el factor de escala (zoom).
+- **Limitación:** No maneja rotación de páginas (`/Rotate`). Documentos Landscape pueden presentar inconsistencias en la ubicación final de los campos.
 
 ### Generador de PDF (`lib/pdf/generator.ts`)
 

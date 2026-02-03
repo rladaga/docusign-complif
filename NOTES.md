@@ -109,5 +109,10 @@
 3.  **Persistencia de Archivos:**
     - Los archivos PDF se convierten a Base64 para almacenarlos en el store/localStorage. Se asume que los archivos de prueba son pequeños (<5MB). En producción, esto se subiría a un S3/Blob Storage y solo se guardarían las URLs.
 
-4.  **Notificaciones:**
+4.  **Orientación de Documentos (Landscape/Portrait):**
+    - **Limitación Conocida:** El sistema de coordenadas actual (`lib/pdf/coordinates.ts`) está optimizado para documentos **Portrait** (verticales).
+    - **Causa:** No se está aplicando la matriz de transformación de rotación (Rotation Matrix) al convertir coordenadas. Por ende, los documentos que dependen del metadato `/Rotate` (común en Landscape) pueden presentar desplazamientos en la ubicación final de la firma.
+    - **Decisión:** Se priorizó el soporte robusto para A4/Letter vertical (90% de los casos de uso corporativos) para el MVP.
+
+5.  **Notificaciones:**
     - El envío de correos electrónicos es simulado (`console.log`). Se asume que la integración con un proveedor como SendGrid o AWS SES sería trivial de agregar en el servicio `NotificationService`.
