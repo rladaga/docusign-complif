@@ -43,4 +43,20 @@ export const TemplateService = {
     });
     return res.ok;
   },
+
+  duplicate: async (id: string): Promise<Template> => {
+    const res = await fetch(`/api/templates/${id}/duplicate`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('Error duplicating template');
+    return res.json();
+  },
+
+  createVersion: async (id: string): Promise<Template> => {
+    const res = await fetch(`/api/templates/${id}/versions`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('Error creating version');
+    return res.json();
+  },
 };

@@ -207,49 +207,35 @@ export const useTemplateStore = create<TemplateState>()(
         }
       },
 
-      duplicateTemplate: (templateId) => {
-        set((state) => {
-          const original = state.templates.find((t) => t.id === templateId);
-          if (!original) return;
+      duplicateTemplate: async (templateId) => {
+        set({ isLoading: true });
+        try {
+          const duplicate = await TemplateService.duplicate(templateId);
 
-          const duplicate: Template = {
-            ...original,
-            id: nanoid(),
-            name: `${original.name} (Copy)`,
-            version: 1,
-            previousVersionId: undefined,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            // Deep copy
-            fields: original.fields.map((f) => ({ ...f, id: nanoid() })),
-            signers: original.signers.map((s) => ({ ...s, id: nanoid() })),
-          };
-
-          state.templates.push(duplicate);
-        });
+          set((state) => {
+            state.templates.push(duplicate);
+            state.isLoading = false;
+          });
+        } catch (error) {
+          console.error('Error duplicating', error);
+          set({ isLoading: false });
+        }
       },
 
-      createNewVersion: (templateId, changeDescription) => {
-        set((state) => {
-          const original = state.templates.find((t) => t.id === templateId);
-          if (!original) return;
+      createNewVersion: async (templateId, changeDescription) => {
+        set({ isLoading: true });
+        try {
+          const newVersion = await TemplateService.createVersion(templateId);
 
-          const newVersion: Template = {
-            ...original,
-            id: nanoid(),
-            version: original.version + 1,
-            previousVersionId: original.id,
-            updatedAt: new Date(),
-            // Deep copy
-            fields: original.fields.map((f) => ({ ...f })),
-            signers: original.signers.map((s) => ({ ...s })),
-          };
-
-          state.templates.push(newVersion);
-          state.currentTemplate = newVersion;
-
-          console.log(`Created version ${newVersion.version}: ${changeDescription}`);
-        });
+          set((state) => {
+            state.templates.push(newVersion);
+            state.currentTemplate = newVersion;
+            state.isLoading = false;
+          });
+        } catch (error) {
+          console.error('Error versioning', error);
+          set({ isLoading: false });
+        }
       },
 
       // ==============
