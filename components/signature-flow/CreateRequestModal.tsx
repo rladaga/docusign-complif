@@ -32,7 +32,12 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
   const getRuleLocal = (fac: Faculty) => activeSchema?.rules.find((r) => r.faculty === fac);
   const getGroupLocal = (groupId: string) => activeSchema?.groups.find((g) => g.id === groupId);
 
-  const isSingleSigner = template.signers.length <= 1;
+  // Filtrar firmantes que tienen campos asignados y reordenar secuencialmente
+  const activeSigners = template.signers
+    .filter((signer) => template.fields.some((field) => field.assignedTo === signer.id))
+    .sort((a, b) => a.order - b.order);
+
+  const isSingleSigner = activeSigners.length <= 1;
 
   const [faculty, setFaculty] = useState<Faculty>(Faculty.APPROVE_WIRE);
   const [signerData, setSignerData] = useState<
@@ -42,7 +47,10 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     isSingleSigner ? 'parallel' : template.settings?.signingOrder || 'sequential'
   );
   const [rolesOrder, setRolesOrder] = useState<Record<string, number>>(() =>
-    template.signers.reduce((acc, s) => ({ ...acc, [s.id]: s.order }), {} as Record<string, number>)
+    activeSigners.reduce(
+      (acc, s, index) => ({ ...acc, [s.id]: index + 1 }),
+      {} as Record<string, number>
+    )
   );
   const [expirationDays, setExpirationDays] = useState<number>(
     template.settings?.expirationDays || 30
@@ -84,7 +92,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     }
 
     // Verificar que las combinaciones sean posibles ANTES de crear
-    const tempSigners = template.signers
+    const tempSigners = activeSigners
       .map((role) => {
         const data = signerData[role.id];
         if (!data) return null;
@@ -152,7 +160,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
     const processedNewEmails = new Set<string>();
 
     // Asignar firmantes
-    template.signers.forEach((role) => {
+    activeSigners.forEach((role) => {
       const data = signerData[role.id];
       if (data) {
         // Guardar firmante en la cuenta si no existe (para futuras ocasiones)
@@ -300,7 +308,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
           <div>
             <h3 className="mb-3 text-sm font-medium text-gray-700">Asignar Firmantes</h3>
             <div className="space-y-4">
-              {template.signers.map((role) => {
+              {activeSigners.map((role) => {
                 // Filtrar firmantes si el rol está vinculado a un grupo
                 const availableSigners = role.linkedGroupId
                   ? signers.filter((s) => s.groupIds.includes(role.linkedGroupId!))
