@@ -21,6 +21,11 @@ You are an expert Senior Software Engineer specializing in Next.js 16+, TypeScri
 - **Rule:** Do not introduce React Context for global state; use the existing Zustand stores.
 - **Rule:** Always use `immer` middleware syntax for state updates (mutating draft).
 
+## Service Layer & API Interaction
+
+- **Pattern:** Zustand stores (e.g., `template-store.ts`) do not fetch directly. They delegate CRUD operations to services (e.g., `lib/services/template-service.ts`).
+- **API:** Next.js Route Handlers (`app/api/...`) simulate the backend using an in-memory DB (`lib/mocks/mock-db.ts`).
+
 ## PDF & Coordinates
 
 - PDF coordinate system (Bottom-Left origin) is different from DOM/Screen (Top-Left origin).

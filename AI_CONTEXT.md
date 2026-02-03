@@ -41,6 +41,7 @@ La aplicación no usa base de datos real. Todo el estado persiste en `localStora
 
 1.  **`template-store.ts`**:
     - Maneja la creación/edición de templates.
+    - Interactúa con `TemplateService` para operaciones CRUD (API).
     - Controla el UI del Builder (zoom, página actual, campo seleccionado).
     - Acciones clave: `addField`, `updateField`, `saveTemplate`.
 
@@ -53,7 +54,15 @@ La aplicación no usa base de datos real. Todo el estado persiste en `localStora
     - Maneja la configuración administrativa (Cuentas, Grupos, Reglas).
     - Inicializado con datos mock (`lib/mocks/rules.ts`).
 
-## 4. Módulos Críticos
+## 4. Capa de Servicios y API
+
+Para simular un entorno real y separar responsabilidades:
+
+- **`lib/services/template-service.ts`**: Abstrae las llamadas HTTP (`fetch`) a la API.
+- **`app/api/templates/`**: Route Handlers de Next.js que actúan como backend.
+- **`lib/mocks/mock-db.ts`**: Base de datos en memoria que respalda a la API.
+
+## 5. Módulos Críticos
 
 ### Motor de Combinatoria (`lib/utils/combinatorics.ts`)
 
@@ -76,7 +85,7 @@ Resuelve la discrepancia entre el sistema de coordenadas del navegador y el de l
 - Usa `pdf-lib` para estampar las firmas (imágenes Base64) sobre el PDF original.
 - Agrega una página de "Audit Trail" al final del documento con los metadatos de la firma.
 
-## 5. Flujos de Usuario Clave
+## 6. Flujos de Usuario Clave
 
 ### Flujo: Crear Solicitud (`CreateRequestModal.tsx`)
 
@@ -93,7 +102,7 @@ Resuelve la discrepancia entre el sistema de coordenadas del navegador y el de l
 4. Al finalizar, llama a `completeSignerSignature` en el store.
 5. El store verifica si con esa nueva firma se completó el documento (`isRequestComplete`).
 
-## 6. Testing
+## 7. Testing
 
 El proyecto tiene una cobertura de tests robusta en `tests/`.
 
