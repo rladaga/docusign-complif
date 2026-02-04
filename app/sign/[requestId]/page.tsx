@@ -35,7 +35,7 @@ export default function SignPage() {
   const template = templates.find((t) => t.id === request?.templateId);
   const signer = request?.signers.find((s) => s.id === signerId);
 
-  // Estados de error/éxito
+  // Estados
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -216,7 +216,7 @@ export default function SignPage() {
     }
   }
 
-  // INTERFAZ DE FIRMA (Estado normal)
+  // INTERFAZ DE FIRMA
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -245,7 +245,6 @@ export default function SignPage() {
         signer={signer}
         template={template}
         onComplete={() => {
-          // Refrescar página para mostrar estado actualizado
           window.location.reload();
         }}
       />

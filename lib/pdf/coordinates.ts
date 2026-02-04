@@ -18,14 +18,14 @@ export interface Coordinates {
 export function screenToPDF(screen: Coordinates, page: PageInfo): Coordinates {
   const { scale, height: pageHeight } = page;
 
-  // 1. Des-escalar dimensiones
+  // Des-escalar dimensiones
   const width = screen.width / scale;
   const height = screen.height / scale;
 
-  // 2. Des-escalar X
+  // Des-escalar X
   const x = screen.x / scale;
 
-  // 3. Invertir eje Y (PDF es bottom-left)
+  // Invertir eje Y (PDF es bottom-left)
   // PDF_Y = PageHeight - Unscaled_Screen_Y - Unscaled_Height
   const y = pageHeight - screen.y / scale - height;
 
@@ -39,14 +39,14 @@ export function screenToPDF(screen: Coordinates, page: PageInfo): Coordinates {
 export function pdfToScreen(pdf: Coordinates, page: PageInfo): Coordinates {
   const { scale, height: pageHeight } = page;
 
-  // 1. Escalar dimensiones
+  // Escalar dimensiones
   const width = pdf.width * scale;
   const height = pdf.height * scale;
 
-  // 2. Escalar X
+  // Escalar X
   const x = pdf.x * scale;
 
-  // 3. Invertir eje Y y escalar
+  // Invertir eje Y y escalar
   // Screen_Y = (PageHeight - PDF_Y - PDF_Height) * Scale
   const y = (pageHeight - pdf.y - pdf.height) * scale;
 

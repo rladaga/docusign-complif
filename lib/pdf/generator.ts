@@ -43,7 +43,7 @@ export async function generateSignedPDF(options: GeneratePDFOptions): Promise<Ui
 
     if (rotation === 90 || rotation === 270) {
       console.warn(
-        `⚠️ Página ${field.position.page} tiene rotación ${rotation}° (landscape). Esta funcionalidad no está soportada actualmente.`
+        `Página ${field.position.page} tiene rotación ${rotation}° (landscape). Esta funcionalidad no está soportada actualmente.`
       );
       continue;
     }

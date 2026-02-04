@@ -59,13 +59,13 @@ export function SignatureInterface({
 
   const sigPadRef = useRef<SignatureCanvas>(null);
 
-  // Filtrar campos de este usuario (GLOBALES del documento)
+  // Filtrar campos de este usuario
   const myFields = template.fields.filter((f) => signer.assignedFields.includes(f.id));
 
-  // Filtrar campos VISIBLES (Solo los de la página actual)
+  // Filtrar campos VISIBLES en la página actual
   const visibleFields = myFields.filter((f) => f.position.page === currentPage);
 
-  // --- VALIDACIONES DE FLUJO (Parte 1) ---
+  // --- VALIDACIONES DE FLUJO ---
 
   // 1. Validación de Expiración
   const isExpired =
@@ -231,7 +231,7 @@ export function SignatureInterface({
       case FieldType.INITIALS:
         return (
           <>
-            <Pen className="h-3 w-3" /> Inicialar
+            <Pen className="h-3 w-3" /> Iniciales
           </>
         );
       case FieldType.DATE:
@@ -257,7 +257,7 @@ export function SignatureInterface({
     }
   };
 
-  // Función para saltar al siguiente campo pendiente (UX Improvement)
+  // Función para saltar al siguiente campo pendiente
   const jumpToNextField = () => {
     const nextField = myFields.find((f) => !completedFields.has(f.id));
     if (nextField) {
@@ -303,7 +303,7 @@ export function SignatureInterface({
           scale={SCALE}
         />
 
-        {/* Overlay de campos (SOLO LOS DE ESTA PÁGINA) */}
+        {/* Overlay de campos  */}
         <div className="pointer-events-none absolute inset-0">
           <div className="pointer-events-auto relative h-full w-full">
             {visibleFields.map((field) => {
@@ -348,19 +348,19 @@ export function SignatureInterface({
           disabled={!allFieldsCompleted}
           className={`flex items-center gap-2 rounded-full px-6 py-4 font-bold text-white shadow-xl transition-all ${
             allFieldsCompleted
-              ? 'animate-bounce bg-green-600 hover:scale-105 hover:bg-green-700'
+              ? 'bg-green-600 hover:scale-105 hover:bg-green-700'
               : 'cursor-not-allowed bg-gray-400'
           }`}
         >
           {allFieldsCompleted ? (
-            <>✓ Finalizar Documento</>
+            <>Finalizar Documento</>
           ) : (
             <span className="text-sm">Faltan {myFields.length - completedFields.size} campos</span>
           )}
         </button>
       </div>
 
-      {/* Modal de Firma (Igual que antes) */}
+      {/* Modal de Firma */}
       {showSignatureModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="animate-in fade-in zoom-in w-full max-w-md rounded-xl bg-white p-6 shadow-2xl duration-200">

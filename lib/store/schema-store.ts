@@ -40,7 +40,7 @@ interface SchemaState {
   getGroupById: (groupId: string) => SignerGroup | undefined;
 }
 
-// Inicializamos con los datos del mock para mantener la funcionalidad actual
+// Inicializamos con los datos del mock
 const initialAccounts: Account[] = [
   { id: 'account-1', name: 'Complif Inc.', createdAt: new Date(), updatedAt: new Date() },
   { id: 'account-2', name: 'Empresa Demo S.A.', createdAt: new Date(), updatedAt: new Date() },

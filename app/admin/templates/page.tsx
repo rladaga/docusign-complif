@@ -18,7 +18,6 @@ import {
   X,
 } from 'lucide-react';
 import { Template } from '@/lib/types';
-// Importamos el modal que creamos en el paso anterior
 import { CreateRequestModal } from '@/components/signature-flow/CreateRequestModal';
 import { PDFDocument } from 'pdf-lib';
 
@@ -349,7 +348,6 @@ const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-// Modal Component para Crear Template (Nuevo archivo)
 function CreateTemplateModal({
   onClose,
   onCreate,

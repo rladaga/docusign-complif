@@ -72,7 +72,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
         [roleId]: {
           email: signer.email,
           name: signer.name,
-          groupId: signer.groupIds[0] || '', // Tomamos el primer grupo por defecto
+          groupId: signer.groupIds[0] || '',
         },
       }));
     }
@@ -81,7 +81,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Obtener reglas dinámicas (Parte 0)
+    // Obtener reglas dinámicas
     const selectedRule = getRuleLocal(faculty) || getRuleLocal(Faculty.CREATE_WIRE);
 
     if (!selectedRule || !selectedRule.combinations) {
@@ -137,7 +137,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
         .join('\n');
 
       alert(
-        `❌ No se puede crear la solicitud.\n\n` +
+        `No se puede crear la solicitud.\n\n` +
           `La facultad "${faculty}" requiere una de estas combinaciones:\n\n${combosText}\n\n` +
           `Con los firmantes asignados actuales, ninguna combinación es posible.\n\n` +
           `Agregá más firmantes o cambiá sus grupos.`
@@ -191,7 +191,7 @@ export function CreateRequestModal({ template, onClose, onSuccess }: CreateReque
       combinations: selectedRule.combinations as SignatureCombination[],
     });
 
-    // Enviar la solicitud (Cambia DRAFT -> PENDING)
+    // Enviar la solicitud
     sendForSignature(requestId);
 
     onSuccess();

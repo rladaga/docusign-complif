@@ -37,7 +37,7 @@ export default function RequestsPage() {
     }
   }, [accounts, selectedAccountId]);
 
-  // Sincronización automática: Forzar recarga del store al volver a la pestaña
+  // Forzar recarga del store al volver a la pestaña
   useEffect(() => {
     const onFocus = () => {
       useSignatureStore.persist.rehydrate();

@@ -107,7 +107,7 @@ export const useTemplateStore = create<TemplateState>()(
       currentTemplate: null,
       selectedFieldId: null,
       currentPage: 1,
-      zoom: 1,
+      zoom: 1.5,
       isDragging: false,
       showGrid: false,
       isLoading: false,

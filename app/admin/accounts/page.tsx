@@ -10,10 +10,10 @@ export default function AccountsPage() {
 
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
-  // Buscamos el esquema activo para la cuenta seleccionada
   const activeSchemaForAccount =
     schemas.find((s) => s.accountId === selectedAccount && s.isActive) ||
     schemas.find((s) => s.accountId === selectedAccount);
+
   const currentGroups = activeSchemaForAccount ? activeSchemaForAccount.groups : [];
 
   const currentSigners = signers.filter((s) => s.accountId === selectedAccount);
@@ -32,7 +32,6 @@ export default function AccountsPage() {
     // Si no existe un esquema para esta cuenta, lo creamos automáticamente
     if (!schemaId) {
       createSchema(selectedAccount, 'Schema Principal');
-      // Accedemos al estado actualizado directamente para obtener el ID del nuevo esquema
       const updatedSchemas = useSchemaStore.getState().schemas;
       schemaId = updatedSchemas.find((s) => s.accountId === selectedAccount)?.id;
     }

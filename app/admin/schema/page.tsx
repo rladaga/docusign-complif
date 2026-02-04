@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { GroupManager } from '@/components/schema/GroupManager';
 import { RuleManager } from '@/components/schema/RuleManager';
 import { Users, ShieldAlert, ArrowLeft } from 'lucide-react';
@@ -9,13 +9,22 @@ import Link from 'next/link';
 import { Faculty } from '@/lib/types';
 
 function SchemaPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const tabParam = searchParams.get('tab');
+
+  // Usamos la URL como fuente de verdad. Si no hay tab, por defecto es 'groups'
+  const activeTab = searchParams.get('tab') === 'rules' ? 'rules' : 'groups';
   const facultyParam = searchParams.get('faculty');
 
-  const [activeTab, setActiveTab] = useState<'groups' | 'rules'>(
-    tabParam === 'rules' ? 'rules' : 'groups'
-  );
+  const handleTabChange = (tab: 'groups' | 'rules') => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tab);
+    if (tab === 'groups') {
+      params.delete('faculty');
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -34,7 +43,7 @@ function SchemaPageContent() {
 
         <div className="mb-6 flex gap-4 border-b border-gray-200">
           <button
-            onClick={() => setActiveTab('groups')}
+            onClick={() => handleTabChange('groups')}
             className={`flex items-center gap-2 border-b-2 px-4 py-2 font-medium transition-colors ${
               activeTab === 'groups'
                 ? 'border-indigo-600 text-indigo-600'
@@ -45,7 +54,7 @@ function SchemaPageContent() {
             Grupos de Firmantes
           </button>
           <button
-            onClick={() => setActiveTab('rules')}
+            onClick={() => handleTabChange('rules')}
             className={`flex items-center gap-2 border-b-2 px-4 py-2 font-medium transition-colors ${
               activeTab === 'rules'
                 ? 'border-indigo-600 text-indigo-600'
