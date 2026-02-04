@@ -67,7 +67,7 @@ export function SignatureInterface({
 
   // --- VALIDACIONES DE FLUJO ---
 
-  // 1. Validación de Expiración
+  // Validación de Expiración
   const isExpired =
     request.status === DocumentStatus.EXPIRED ||
     (request.expiresAt && new Date() > new Date(request.expiresAt));
@@ -87,7 +87,7 @@ export function SignatureInterface({
     );
   }
 
-  // 1.5 Validación de Rechazo
+  // Validación de Rechazo
   if (request.status === DocumentStatus.DECLINED) {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center">
@@ -105,7 +105,7 @@ export function SignatureInterface({
     );
   }
 
-  // 2. Validación de Orden Secuencial
+  // Validación de Orden Secuencial
   const isSequential = request.settings?.signingOrder === 'sequential';
   let isLockedByOrder = false;
   let pendingPreviousSigners: SignerAssignment[] = [];
