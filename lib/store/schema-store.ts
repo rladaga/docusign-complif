@@ -31,8 +31,10 @@ interface SchemaState {
   // Actions
   createSchema: (accountId: string, name: string) => void;
   createGroup: (name: string, description?: string) => void;
+  deleteGroup: (groupId: string) => void;
   updateRule: (faculty: Faculty, combinations: SignatureCombination[]) => void;
   createSigner: (name: string, email: string, groupIds: string[]) => void;
+  deleteSigner: (signerId: string) => void;
   setActiveSchemaId: (schemaId: string | null) => void;
 
   // Helpers
@@ -142,6 +144,21 @@ export const useSchemaStore = create<SchemaState>()(
             description,
             createdAt: new Date(),
           });
+        });
+      },
+
+      deleteGroup: (groupId) => {
+        set((state) => {
+          const schema = state.schemas.find((s) => s.id === state.activeSchemaId);
+          if (!schema) return;
+
+          schema.groups = schema.groups.filter((g) => g.id !== groupId);
+        });
+      },
+
+      deleteSigner: (signerId) => {
+        set((state) => {
+          state.signers = state.signers.filter((s) => s.id !== signerId);
         });
       },
 

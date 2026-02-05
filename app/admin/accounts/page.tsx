@@ -2,11 +2,20 @@
 
 import { useState, SyntheticEvent } from 'react';
 import { useSchemaStore } from '@/lib/store/schema-store';
-import { X } from 'lucide-react';
+import { X, Trash } from 'lucide-react';
 
 export default function AccountsPage() {
-  const { accounts, schemas, signers, createGroup, createSigner, setActiveSchemaId, createSchema } =
-    useSchemaStore();
+  const {
+    accounts,
+    schemas,
+    signers,
+    createGroup,
+    createSigner,
+    setActiveSchemaId,
+    createSchema,
+    deleteGroup,
+    deleteSigner,
+  } = useSchemaStore();
 
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
@@ -60,6 +69,14 @@ export default function AccountsPage() {
     }
   };
 
+  const handleDeleteGroup = (groupId: string) => {
+    deleteGroup(groupId);
+  };
+
+  const handleDeleteSigner = (signerId: string) => {
+    deleteSigner(signerId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="container mx-auto py-8">
@@ -109,7 +126,15 @@ export default function AccountsPage() {
             <div className="grid gap-4 text-black md:grid-cols-2 lg:grid-cols-3">
               {currentGroups.map((group) => (
                 <div key={group.id} className="rounded-lg border p-4">
-                  <div className="mb-2 font-semibold">{group.name}</div>
+                  <div className="mb-2 flex items-center justify-between gap-4">
+                    <div className="font-semibold">{group.name}</div>
+                    <button
+                      onClick={() => handleDeleteGroup(group.id)}
+                      className="rounded-full hover:bg-gray-100"
+                    >
+                      <Trash className="h-5 w-5 text-red-500" />
+                    </button>
+                  </div>
                   <div className="text-sm text-gray-600">{group.description}</div>
                   <div className="mt-2 text-xs text-gray-500">
                     {currentSigners.filter((s) => s.groupIds.includes(group.id)).length} firmantes
@@ -139,6 +164,12 @@ export default function AccountsPage() {
                       <div className="text-sm text-gray-600">{signer.email}</div>
                     </div>
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => handleDeleteSigner(signer.id)}
+                        className="rounded-full p-1 hover:bg-gray-100"
+                      >
+                        <Trash className="h-5 w-5 text-red-500" />
+                      </button>
                       {signer.groupIds.map((groupId) => {
                         const group = currentGroups.find((g) => g.id === groupId);
                         return (
